@@ -1,0 +1,21 @@
+param(
+    [switch]$NoCache
+)
+
+# Synopsis: Build docker image.
+task Build {
+    $script:BUILDER_IMAGE_PREFIX = 'ghcr.io/fdcastel'
+    $script:BUILDER_IMAGE_NAME = 'firebird'
+    $script:BUILDER_IMAGE_VERSION = '<%$TImageVersion%>'
+
+    $script:FULL_IMAGE_NAME = "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}:$BUILDER_IMAGE_VERSION"
+
+    $noCacheParameter = if ($NoCache) { '--no-cache' } else { $null }
+    exec { docker build -t $FULL_IMAGE_NAME . $noCacheParameter }
+}
+
+# Synopsis: Run tests.
+task Test Build, {
+    Write-Build Magenta "----- [$BUILDER_IMAGE_VERSION] ---------------------"
+    Invoke-Build * image.tests.ps1
+}
