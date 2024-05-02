@@ -19,3 +19,9 @@ task Test Build, {
     Write-Build Magenta "----- [$BUILDER_IMAGE_VERSION] ---------------------"
     Invoke-Build * image.tests.ps1
 }
+
+# Synopsis: Publish image.
+task Publish Test, {
+    Write-Build Magenta "----- [$BUILDER_IMAGE_VERSION] ---------------------"
+    docker push $script:FULL_IMAGE_NAME
+}

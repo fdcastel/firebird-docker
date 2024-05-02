@@ -101,5 +101,13 @@ task Test {
     Build-Parallel $builds
 }
 
+# Synopsis: Publish all images.
+task Publish {
+    $builds = Get-ChildItem "$outputFolder/**/image.build.ps1" -Recurse | ForEach-Object {
+        @{File=$_; Task='Publish'}
+    }    
+    Build-Parallel $builds
+}
+
 # Synopsis: Default task.
 task . Build
