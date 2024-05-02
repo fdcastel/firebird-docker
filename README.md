@@ -8,7 +8,7 @@ Docker images for Firebird Database.
 
 _[ToDo]_
 
-
+_(Meanwhile, you can look at [the tests](src/image.tests.ps1#L71) to see what you can do)_
 
 # Development notes
 
