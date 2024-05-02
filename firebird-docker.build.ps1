@@ -10,7 +10,7 @@ $outputFolder = './generated'
 # Functions
 #
 
-function Expand-Template([Parameter(ValueFromPipeline=$true)]$Template) {
+function Expand-Template([Parameter(ValueFromPipeline = $true)]$Template) {
     $evaluator = {
         $innerTemplate = $args[0].Groups[1].Value
         $ExecutionContext.InvokeCommand.ExpandString($innerTemplate)
@@ -74,6 +74,12 @@ task Prepare {
             $TMajor = $major
             $TImageVersion = "$major-$image"
 
+            $TImageTags = $asset.imageTags.$image
+            if ($TImageTags) {
+                # https://stackoverflow.com/a/73073678
+                $TImageTags = "'{0}'" -f ($TImageTags -join "', '")
+            }            
+
             $versionFolder = Join-Path $majorFolder $image
             New-Item -ItemType Directory $versionFolder -Force > $null
 
@@ -88,7 +94,7 @@ task Prepare {
 # Synopsis: Build all docker images.
 task Build Prepare, {
     $builds = Get-ChildItem "$outputFolder/**/image.build.ps1" -Recurse | ForEach-Object {
-        @{File=$_; Task='Build'}
+        @{File = $_; Task = 'Build' }
     }    
     Build-Parallel $builds
 }
@@ -96,7 +102,7 @@ task Build Prepare, {
 # Synopsis: Run all tests.
 task Test {
     $builds = Get-ChildItem "$outputFolder/**/image.build.ps1" -Recurse | ForEach-Object {
-        @{File=$_; Task='Test'}
+        @{File = $_; Task = 'Test' }
     }    
     Build-Parallel $builds
 }
@@ -104,7 +110,7 @@ task Test {
 # Synopsis: Publish all images.
 task Publish {
     $builds = Get-ChildItem "$outputFolder/**/image.build.ps1" -Recurse | ForEach-Object {
-        @{File=$_; Task='Publish'}
+        @{File = $_; Task = 'Publish' }
     }    
     Build-Parallel $builds
 }

@@ -7,18 +7,24 @@ task Build {
     $script:BUILDER_IMAGE_PREFIX = 'ghcr.io/fdcastel'
     $script:BUILDER_IMAGE_NAME = 'firebird'
     $script:BUILDER_IMAGE_VERSION = '<%$TImageVersion%>'
+    $script:BUILDER_IMAGE_TAGS = @(<%$TImageTags%>)
 
-    $script:FULL_IMAGE_NAME = "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}:$BUILDER_IMAGE_VERSION"
+    $env:FULL_IMAGE_NAME = "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}:$BUILDER_IMAGE_VERSION"
 
     $noCacheParameter = if ($NoCache) { '--no-cache' } else { $null }
-    exec { 
-        docker build --tag $FULL_IMAGE_NAME `
-            $noCacheParameter `
-            --label "org.opencontainers.image.description=Firebird Database <%$TVersion%>" `
-            --label "org.opencontainers.image.source=https://github.com/fdcastel/firebird-docker" `
-            --label "org.opencontainers.image.version=<%$TVersion%>" `
-            .
-    }
+    $tags = $BUILDER_IMAGE_TAGS + $BUILDER_IMAGE_VERSION | ForEach-Object { '--tag', "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}:$_" }
+
+    $allParameters = @(
+        'build'; 
+        $tags; 
+        $noCacheParameter, 
+        '--label', '"org.opencontainers.image.description=Firebird Database 5.0.0"',
+        '--label', '"org.opencontainers.image.source=https://github.com/fdcastel/firebird-docker"',
+        '--label', '"org.opencontainers.image.version=5.0.0"',
+        '.'
+    )
+    Write-Verbose "docker $allParameters"
+    exec { & docker $allParameters }
 }
 
 # Synopsis: Run tests.
@@ -30,5 +36,8 @@ task Test Build, {
 # Synopsis: Publish image.
 task Publish Test, {
     Write-Build Magenta "----- [$BUILDER_IMAGE_VERSION] ---------------------"
-    docker push $script:FULL_IMAGE_NAME
+
+    $BUILDER_IMAGE_TAGS + $BUILDER_IMAGE_VERSION | ForEach-Object {
+        docker push "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}:$_"
+    }
 }
