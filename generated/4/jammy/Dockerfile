@@ -1,0 +1,77 @@
+﻿#
+# This file was generated. Do not edit. See /src.
+#
+
+# Best practices for Dockerfile instructions
+#   https://docs.docker.com/develop/develop-images/instructions/
+
+FROM ubuntu:jammy
+
+ENV FIREBIRD_RELEASE_URL=https://github.com/FirebirdSQL/firebird/releases/download/v4.0.4/Firebird-4.0.4.3010-0.amd64.tar.gz
+ENV FIREBIRD_RELEASE_SHA256=ef589301c5e13a1f8481e1e38c453641ef5082344bf69edb51f8aa9f036bcaca
+ENV FIREBIRD_VERSION=4.0.4
+ENV FIREBIRD_MAJOR=4
+
+# https://linuxcommand.org/lc3_man_pages/seth.html
+#   -e  Exit immediately if a command exits with a non-zero status.
+#   -u  Treat unset variables as an error when substituting
+#   -x  Print commands and their arguments as they are executed.
+
+# Prerequisites
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        libatomic1 \
+        libicu70 \
+        libncurses6 \
+        libtomcrypt1 \
+        libtommath1 \
+        netbase \
+        procps; \
+    rm -rf /var/lib/apt/lists/*
+
+# Download
+ADD --checksum="sha256:$FIREBIRD_RELEASE_SHA256" \
+    --chown=root:root \
+    --chmod=777 \
+    $FIREBIRD_RELEASE_URL \
+    /tmp/firebird-bundle.tar.gz
+
+# Extract, install, clean
+RUN set -eux; \
+    cd /tmp; \
+    tar --extract --file=firebird-bundle.tar.gz --gunzip --verbose --strip-components=1; \
+    ./install.sh -silent; \
+    rm *.tar.gz *.sh *.txt \
+    # Remove unnecessary files
+    rm -rf /opt/firebird/doc \
+           /opt/firebird/examples \
+           /opt/firebird/help \
+           /opt/firebird/include; \
+    # Remove 'employee' sample database from 'databases.conf'
+    sed -i '/^employee/d' /opt/firebird/databases.conf
+
+# System path
+ENV PATH=/opt/firebird/bin:$PATH
+
+# Data directory
+ENV FIREBIRD_DATA /run/firebird/data
+RUN set -eux; \
+    mkdir -p "$FIREBIRD_DATA"; \
+    chown -R firebird:firebird "$FIREBIRD_DATA"; \
+    chmod 644 "$FIREBIRD_DATA"
+VOLUME $FIREBIRD_DATA
+
+# Entrypoint
+COPY entrypoint.sh /usr/local/bin/
+RUN set -eux; \
+    chmod +x /usr/local/bin/entrypoint.sh
+ENTRYPOINT ["entrypoint.sh"]
+
+EXPOSE 3050/tcp
+
+# Fix terminfo location
+ENV TERMINFO=/lib/terminfo/
+
+CMD ["firebird"]
+

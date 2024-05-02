@@ -4,7 +4,29 @@ Docker images for Firebird Database.
 
 
 
-# Usage notes
+# Quick reference
+
+  - [Quick Start Guide](https://firebirdsql.org/file/documentation/html/en/firebirddocs/qsg5/firebird-5-quickstartguide.html)
+  - [Language Reference](https://firebirdsql.org/file/documentation/html/en/refdocs/fblangref50/firebird-50-language-reference.html)
+  - [Release Notes](https://firebirdsql.org/file/documentation/release_notes/html/en/5_0/rlsnotes50.html)
+
+
+
+# Supported tags
+
+|Tags|Dockerfile|OS|Last modified|
+|-|:-:|:-:|:-:|
+|`5`, `5-bookworm`, `bookworm`, `latest`|[Dockerfile](./generated/5/bookworm/Dockerfile)|Debian 12.5|2024-05-02|
+|`5-jammy`, `jammy`|[Dockerfile](./generated/5/jammy/Dockerfile)|Ubuntu 22.04|2024-05-02|
+|`4`, `4-bookworm`|[Dockerfile](./generated/4/bookworm/Dockerfile)|Debian 12.5|2024-05-02|
+|`4-jammy`|[Dockerfile](./generated/4/jammy/Dockerfile)|Ubuntu 22.04|2024-05-02|
+|`3`, `3-bookworm`|[Dockerfile](./generated/3/bookworm/Dockerfile)|Debian 12.5|2024-05-02|
+|`3-jammy`|[Dockerfile](./generated/3/jammy/Dockerfile)|Ubuntu 22.04|2024-05-02|
+
+
+
+# How to use this image
+
 
 _[ToDo]_
 
