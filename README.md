@@ -14,8 +14,8 @@ Docker images for Firebird Database.
 
 # Supported tags
 
-|Tags|Dockerfile|OS|Last modified|
-|-|:-:|:-:|:-:|
+|`ghcr.io/fdcastel/firebird`|Dockerfile|OS|Last modified|
+|:-|:-:|:-:|:-:|
 |`5`, `5-bookworm`, `bookworm`, `latest`|[Dockerfile](./generated/5/bookworm/Dockerfile)|Debian 12.5|2024-05-02|
 |`5-jammy`, `jammy`|[Dockerfile](./generated/5/jammy/Dockerfile)|Ubuntu 22.04|2024-05-02|
 |`4`, `4-bookworm`|[Dockerfile](./generated/4/bookworm/Dockerfile)|Debian 12.5|2024-05-02|
@@ -27,15 +27,55 @@ Docker images for Firebird Database.
 
 # How to use this image
 
+Image defaults:
+  - `EXPOSE 3050/tcp`
+  - `VOLUME /run/firebird/data`
 
-_[ToDo]_
+## Start a Firebird server instance
 
-_(Meanwhile, you can look at [the tests](src/image.tests.ps1#L71) to see what you can do)_
+```bash
+docker run \
+    -e FIREBIRD_ROOT_PASSWORD=************ \
+    -e FIREBIRD_USER=alice \
+    -e FIREBIRD_PASSWORD=************ \
+    -e FIREBIRD_DATABASE=mirror.fdb \
+    -e FIREBIRD_DATABASE_DEFAULT_CHARSET=UTF8 \
+    -v ./data:/run/firebird/data
+    --detach ghcr.io/fdcastel/firebird
+```
+
+
+
+## Using [`Docker Compose`](https://github.com/docker/compose)
+
+```yaml
+services:
+  firebird:
+    image: ghcr.io/fdcastel/firebird
+    restart: always
+    environment:
+      - FIREBIRD_ROOT_PASSWORD=************
+      - FIREBIRD_USER=alice
+      - FIREBIRD_PASSWORD=************
+      - FIREBIRD_DATABASE=mirror.fdb
+      - FIREBIRD_DATABASE_DEFAULT_CHARSET=UTF8
+    volumes:
+      - ./data:/run/firebird/data
+```
+
+
+
+## Connect to an existing instance using `isql`
+
+```bash
+docker run -it --rm ghcr.io/fdcastel/firebird isql -u SYSDBA -p ************ SERVER:/path/to/file.fdb
+```
+
+
 
 ## Environment variables
 
 The following environment variables can be used to customize the container.
-
 
 
 
@@ -50,7 +90,7 @@ If not present a random password will be generated and stored into `/opt/firebir
 
 ### `FIREBIRD_USER`
 
-Creates a user in Firebird security database.
+Creates an user in Firebird security database.
 
 You must inform a password in `FIREBIRD_PASSWORD` variable. Otherwise the container initialization will fail.
 
@@ -62,9 +102,7 @@ Creates a new database. Ignored if the database already exists.
 
 Database location is `/run/firebird/data`. Absolute paths (outside this folder) are allowed.
 
-You may use `FIREBIRD_DATABASE_PAGE_SIZE` to set the database page size.
-
-You may use `FIREBIRD_DATABASE_DEFAULT_CHARSET` to set the default character set.
+You may use `FIREBIRD_DATABASE_PAGE_SIZE` to set the database page size. And `FIREBIRD_DATABASE_DEFAULT_CHARSET` to set the default character set.
 
 
 
@@ -98,17 +136,9 @@ Note that both the original variable and its `_FILE` variant are mutually exclus
 
 ## Prerequisites
 
-  - [Powershell](https://github.com/PowerShell/PowerShell):
-    ```bash
-    # On Ubuntu
-    snap install powershell --classic
-    pwsh
-    ```
-
-  - [`Invoke-Build`](https://github.com/nightroman/Invoke-Build):
-    ```powershell
-    Install-Module InvokeBuild -Force
-    ```
+  - [Docker](https://docs.docker.com/engine/install/)
+  - [Powershell](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-linux)
+  - [Invoke-Build](https://github.com/nightroman/Invoke-Build#install-as-module)
 
 
 
@@ -126,15 +156,6 @@ You can then check all created images with:
 docker image ls ghcr.io/fdcastel/firebird
 ```
 
-```
-REPOSITORY                  TAG          IMAGE ID       CREATED         SIZE
-ghcr.io/fdcastel/firebird   5-jammy      7fcc613eadfc   2 minutes ago   177MB
-ghcr.io/fdcastel/firebird   5-bookworm   aa93296f37d4   2 minutes ago   178MB
-ghcr.io/fdcastel/firebird   3-jammy      c966eb830115   2 minutes ago   145MB
-ghcr.io/fdcastel/firebird   4-jammy      e12502e3385a   2 minutes ago   186MB
-ghcr.io/fdcastel/firebird   4-bookworm   174c278cfa9c   2 minutes ago   188MB
-ghcr.io/fdcastel/firebird   3-bookworm   993b80786814   2 minutes ago   145MB
-```
 
 
 ## Tests
