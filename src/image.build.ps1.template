@@ -18,9 +18,9 @@ task Build {
         'build'; 
         $tags; 
         $noCacheParameter, 
-        '--label', 'org.opencontainers.image.description=Firebird Database 5.0.0',
+        '--label', 'org.opencontainers.image.description=Firebird Database',
         '--label', 'org.opencontainers.image.source=https://github.com/fdcastel/firebird-docker',
-        '--label', 'org.opencontainers.image.version=5.0.0',
+        '--label', 'org.opencontainers.image.version=<%$TImageVersion%>',
         '.'
     )
     Write-Verbose "docker $allParameters"
@@ -34,7 +34,7 @@ task Test Build, {
 }
 
 # Synopsis: Publish image.
-task Publish Test, {
+task Publish Build, {
     Write-Build Magenta "----- [$BUILDER_IMAGE_VERSION] ---------------------"
 
     $BUILDER_IMAGE_TAGS + $BUILDER_IMAGE_VERSION | ForEach-Object {
