@@ -18,9 +18,9 @@ task Build {
         'build'; 
         $tags; 
         $noCacheParameter, 
-        '--label', '"org.opencontainers.image.description=Firebird Database 5.0.0"',
-        '--label', '"org.opencontainers.image.source=https://github.com/fdcastel/firebird-docker"',
-        '--label', '"org.opencontainers.image.version=5.0.0"',
+        '--label', 'org.opencontainers.image.description=Firebird Database 5.0.0',
+        '--label', 'org.opencontainers.image.source=https://github.com/fdcastel/firebird-docker',
+        '--label', 'org.opencontainers.image.version=5.0.0',
         '.'
     )
     Write-Verbose "docker $allParameters"
