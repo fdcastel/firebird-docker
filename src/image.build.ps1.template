@@ -11,7 +11,14 @@ task Build {
     $script:FULL_IMAGE_NAME = "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}:$BUILDER_IMAGE_VERSION"
 
     $noCacheParameter = if ($NoCache) { '--no-cache' } else { $null }
-    exec { docker build -t $FULL_IMAGE_NAME . $noCacheParameter }
+    exec { 
+        docker build --tag $FULL_IMAGE_NAME `
+            $noCacheParameter `
+            --label "org.opencontainers.image.description=Firebird Database <%$TVersion%>" `
+            --label "org.opencontainers.image.source=https://github.com/fdcastel/firebird-docker" `
+            --label "org.opencontainers.image.version=<%$TVersion%>" `
+            .
+    }
 }
 
 # Synopsis: Run tests.
