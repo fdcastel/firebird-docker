@@ -14,17 +14,21 @@ ENV FIREBIRD_MAJOR=<%$TMajor%>
 #   -x  Print commands and their arguments as they are executed.
 
 # Prerequisites
+#   FB 3.0 uses libncurses5: https://github.com/FirebirdSQL/firebird/issues/6418#issuecomment-826245785
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
         libatomic1 \
         libicu70 \
-        libncurses6 \
+        $([ $FIREBIRD_MAJOR -eq 3 ] && echo 'libncurses5' || echo 'libncurses6') \
         libtomcrypt1 \
         libtommath1 \
         netbase \
         procps; \
     rm -rf /var/lib/apt/lists/*
+
+# Fix libtommath for FB 3.0 -- https://github.com/FirebirdSQL/firebird/issues/5716#issuecomment-826239174
+RUN [ $FIREBIRD_MAJOR -eq 3 ] && ln -sf /usr/lib/x86_64-linux-gnu/libtommath.so.1 /usr/lib/x86_64-linux-gnu/libtommath.so.0 || true
 
 # Download
 ADD --checksum="sha256:$FIREBIRD_RELEASE_SHA256" \
