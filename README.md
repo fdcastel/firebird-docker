@@ -132,6 +132,16 @@ Note that both the original variable and its `_FILE` variant are mutually exclus
 
 
 
+## Initializing the database contents
+
+When creating a new database with `FIREBIRD_DATABASE` environment variable you can initialize it running one or more shell or SQL scripts.
+
+Any file with extensions `.sh`, `.sql`, `.sql.gz`, `.sql.xz` and `.sql.zst` found in `/docker-entrypoint-initdb.d/` will be executed in _alphabetical_ order. `.sh` files without file execute permission (`+x`) will be _sourced_ rather than executed.
+
+**IMPORTANT:** Scripts will only run if you start the container with a data directory that is empty. Any pre-existing database will be left untouched on container startup.
+
+
+
 # Development notes
 
 ## Prerequisites

@@ -112,7 +112,7 @@ set_sysdba() {
         echo 'Changing SYSDBA password.'
 
         # [Tabs ahead]
-        /opt/firebird/bin/isql -user SYSDBA security.db <<-EOL
+        /opt/firebird/bin/isql -b -user SYSDBA security.db <<-EOL
 			CREATE OR ALTER USER SYSDBA
 			    PASSWORD '$ISC_PASSWORD'
 			    USING PLUGIN Srp;
@@ -121,7 +121,7 @@ set_sysdba() {
 
         if [ "$FIREBIRD_USE_LEGACY_AUTH" == 'true' ]; then
             # [Tabs ahead]
-            /opt/firebird/bin/isql -user SYSDBA security.db <<-EOL
+            /opt/firebird/bin/isql -b -user SYSDBA security.db <<-EOL
 				CREATE OR ALTER USER SYSDBA
 				    PASSWORD '$ISC_PASSWORD'
 				    USING PLUGIN Legacy_UserManager;
@@ -170,13 +170,55 @@ create_user() {
         echo "Creating user '$FIREBIRD_USER'..."
 
         # [Tabs ahead]
-        /opt/firebird/bin/isql security.db <<-EOL
+        /opt/firebird/bin/isql -b security.db <<-EOL
 			CREATE OR ALTER USER $FIREBIRD_USER
 			    PASSWORD '$FIREBIRD_PASSWORD'
 			    GRANT ADMIN ROLE;
 			EXIT;
 		EOL
     fi
+}
+
+# Run isql
+process_sql() {
+	local isql_command=( /opt/firebird/bin/isql -b )
+
+    if [ -n "$FIREBIRD_USER" ]; then
+        isql_command+=( -u "$FIREBIRD_USER" -p "$FIREBIRD_PASSWORD" )
+	fi
+
+	if [ -n "$FIREBIRD_DATABASE" ]; then
+		isql_command+=( "$FIREBIRD_DATABASE" )
+	fi
+
+    ${isql_command[@]} "$@"
+}
+
+# Execute database initialization scripts
+init_db() {
+    local f
+    for f; do
+        case "$f" in
+            *.sh)
+                if [ -x "$f" ]; then
+                    # Script is executable. Run it.
+                    printf '  running %s\n' "$f"
+                    "$f"
+                else
+                    # Script is not executable. Source it.
+                    printf '  sourcing %s\n' "$f"
+                    . "$f"
+                fi
+                ;;
+            *.sql)     printf '  running %s\n' "$f"; cat "$f" | process_sql; printf '\n' ;;
+            *.sql.gz)  printf '  running %s\n' "$f"; gunzip -c "$f" | process_sql; printf '\n' ;;
+            *.sql.xz)  printf '  running %s\n' "$f"; xzcat "$f" | process_sql; printf '\n' ;;
+            *.sql.zst) printf '  running %s\n' "$f"; zstd -dc "$f" | process_sql; printf '\n' ;;
+            *)         printf '  ignoring %s\n' "$f" ;;
+        esac
+        printf '\n'
+    done
+
 }
 
 # Create user database.
@@ -207,13 +249,15 @@ create_db() {
             [ -n "$FIREBIRD_DATABASE_DEFAULT_CHARSET" ] && default_charset="DEFAULT CHARACTER SET $FIREBIRD_DATABASE_DEFAULT_CHARSET"
 
             # [Tabs ahead]
-            /opt/firebird/bin/isql -q <<-EOL
+            /opt/firebird/bin/isql -b -q <<-EOL
 			CREATE DATABASE '$FIREBIRD_DATABASE'
 			    $user_and_password
 			    $page_size
 			    $default_charset;
 			EXIT;
 			EOL
+
+            init_db /docker-entrypoint-initdb.d/*
         fi
     fi
 }
