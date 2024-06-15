@@ -46,15 +46,21 @@ function Use-Container([string[]]$Parameters, [Parameter(Mandatory)][ScriptBlock
 }
 
 # Asserts that InputValue contains at least one occurence of Pattern.
-function Contains([Parameter(ValueFromPipeline)]$InputValue, [string[]]$Pattern) {
+#   If -ReturnMatchPosition is informed, return the match value for that pattern position.
+function Contains([Parameter(ValueFromPipeline)]$InputValue, [string[]]$Pattern, [int]$ReturnMatchPosition) {
     process {
         if ($hasMatch) { return; }
         $_matches = $InputValue | Select-String -Pattern $Pattern
         $hasMatch = $null -ne $_matches
+
+        if ($hasMatch -and ($null -ne $ReturnMatchPosition)) {
+            $result = $_matches.Matches.Groups[$ReturnMatchPosition].Value
+        }
     }
 
     end {
         assert $hasMatch
+        return $result
     }
 }
 
@@ -75,6 +81,15 @@ function ExitCodeIs ([Parameter(ValueFromPipeline)]$InputValue, [int]$ExpectedVa
     process { }
     end {
         assert ($LastExitCode -eq $ExpectedValue)
+    }
+}
+
+# Asserts that the difference between two DateTime values are under a given tolerance.
+function IsAdjacent ([Parameter(ValueFromPipeline)][datetime]$InputValue, [datetime]$ExpectedValue, [timespan]$Tolerance=[timespan]::FromSeconds(2)) {
+    process { }
+    end {
+        $difference = $InputValue - $ExpectedValue
+        assert ($difference.Duration() -lt $Tolerance)
     }
 }
 
@@ -303,5 +318,42 @@ task Can_init_db_with_scripts {
     }
     finally {
         Remove-Item $initDbFolder -Force -Recurse
+    }
+}
+
+task TZ_can_change_system_timezone {
+    Use-Container -Parameters '-e', 'FIREBIRD_DATABASE=test.fdb' {
+        param($cId)
+
+        $expected = [DateTime]::Now
+
+        $actual = 'SET LIST ON; SELECT localtimestamp FROM mon$database;' |
+            docker exec -i $cId isql -b -q /run/firebird/data/test.fdb |
+                Contains -Pattern 'LOCALTIMESTAMP(\s+)(.*)' -ReturnMatchPosition 2
+        $actual = [DateTime]$actual
+
+        $actual | IsAdjacent -ExpectedValue $expected
+    }
+
+    Use-Container -Parameters '-e', 'FIREBIRD_DATABASE=test.fdb', '-e', 'TZ=America/Los_Angeles' {
+        param($cId)
+
+        $tz = Get-TimeZone -id 'America/Los_Angeles'
+
+        $expected = [DateTime]::Now
+        # Convert [DateTime] to given time zone
+        $expected = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId($expected, $tz.Id)
+
+        $actual = 'SET LIST ON; SELECT localtimestamp FROM mon$database;' |
+            docker exec -i $cId isql -b -q /run/firebird/data/test.fdb |
+                Contains -Pattern 'LOCALTIMESTAMP(\s+)(.*)' -ReturnMatchPosition 2
+        $actual = [DateTime]$actual
+
+        # Creates a [DateTimeOffset] using given time zone -- https://stackoverflow.com/a/59885215
+        $utcOffset = $tz.GetUtcOffset($actual)
+        $actual = [DateTimeOffset]::new($actual, $utcOffset)
+        $actual = $actual.DateTime    # Back to [DateTime]
+
+        $actual | IsAdjacent -ExpectedValue $expected
     }
 }
