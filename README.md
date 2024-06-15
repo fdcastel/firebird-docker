@@ -142,6 +142,23 @@ Any file with extensions `.sh`, `.sql`, `.sql.gz`, `.sql.xz` and `.sql.zst` foun
 
 
 
+## Setting container time zone
+
+The container runs in the `UTC` time zone by default. To change this, you can set the `TZ` environment variable:
+
+```yaml
+    environment:
+      - TZ=America/New_York
+```
+
+Alternatively, you can use the same time zone as your host system by mapping the `/etc/localtime` and `/etc/timezone` system files:
+
+```yaml
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+```
+
 # Development notes
 
 ## Prerequisites
