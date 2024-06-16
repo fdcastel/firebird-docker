@@ -1,12 +1,16 @@
+﻿#
+# This file was generated. Do not edit. See /src.
+#
+
 # Best practices for Dockerfile instructions
 #   https://docs.docker.com/develop/develop-images/instructions/
 
 FROM --platform=$BUILDPLATFORM debian:bookworm-slim
 
-ENV FIREBIRD_RELEASE_URL=<%$TUrl%>
-ENV FIREBIRD_RELEASE_SHA256=<%$TSha256%>
-ENV FIREBIRD_VERSION=<%$TVersion%>
-ENV FIREBIRD_MAJOR=<%$TMajor%>
+ENV FIREBIRD_RELEASE_URL=https://github.com/FirebirdSQL/firebird/releases/download/v5.0.0/Firebird-5.0.0.1306-0-linux-arm64.tar.gz
+ENV FIREBIRD_RELEASE_SHA256=bdb62abc91a4c26a86b9377256529622e3046f4ec4f66fbdcf46747688d45033
+ENV FIREBIRD_VERSION=5.0.0
+ENV FIREBIRD_MAJOR=5
 
 # https://linuxcommand.org/lc3_man_pages/seth.html
 #   -e  Exit immediately if a command exits with a non-zero status.
@@ -74,3 +78,4 @@ EXPOSE 3050/tcp
 ENV TERMINFO=/lib/terminfo/
 
 CMD ["firebird"]
+

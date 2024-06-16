@@ -5,12 +5,12 @@
 # Best practices for Dockerfile instructions
 #   https://docs.docker.com/develop/develop-images/instructions/
 
-FROM debian:bookworm-slim
+FROM --platform=$BUILDPLATFORM ubuntu:jammy
 
-ENV FIREBIRD_RELEASE_URL=https://github.com/FirebirdSQL/firebird/releases/download/v4.0.4/Firebird-4.0.4.3010-0.amd64.tar.gz
-ENV FIREBIRD_RELEASE_SHA256=ef589301c5e13a1f8481e1e38c453641ef5082344bf69edb51f8aa9f036bcaca
-ENV FIREBIRD_VERSION=4.0.4
-ENV FIREBIRD_MAJOR=4
+ENV FIREBIRD_RELEASE_URL=https://github.com/FirebirdSQL/firebird/releases/download/v3.0.11/Firebird-3.0.11.33703-0.amd64.tar.gz
+ENV FIREBIRD_RELEASE_SHA256=713757e09b40b2631d800dacd9b80179b7eb75693a72089136055a7154413a3e
+ENV FIREBIRD_VERSION=3.0.11
+ENV FIREBIRD_MAJOR=3
 
 # https://linuxcommand.org/lc3_man_pages/seth.html
 #   -e  Exit immediately if a command exits with a non-zero status.
@@ -23,12 +23,13 @@ RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
         libatomic1 \
-        libicu72 \
+        libicu70 \
         $([ $FIREBIRD_MAJOR -eq 3 ] && echo 'libncurses5' || echo 'libncurses6') \
         libtomcrypt1 \
         libtommath1 \
         netbase \
-        procps; \
+        procps \
+        tzdata; \
     rm -rf /var/lib/apt/lists/*
 
 # Fix libtommath for FB 3.0 -- https://github.com/FirebirdSQL/firebird/issues/5716#issuecomment-826239174

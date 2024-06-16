@@ -16,12 +16,12 @@ Docker images for Firebird Database.
 
 |`ghcr.io/fdcastel/firebird`|Dockerfile|OS|Last modified|
 |:-|:-:|:-:|:-:|
-|`5`, `5-bookworm`, `bookworm`, `latest`|[Dockerfile](./generated/5/bookworm/Dockerfile)|Debian 12.5|2024-06-15|
-|`5-jammy`, `jammy`|[Dockerfile](./generated/5/jammy/Dockerfile)|Ubuntu 22.04|2024-06-15|
-|`4`, `4-bookworm`|[Dockerfile](./generated/4/bookworm/Dockerfile)|Debian 12.5|2024-06-15|
-|`4-jammy`|[Dockerfile](./generated/4/jammy/Dockerfile)|Ubuntu 22.04|2024-06-15|
-|`3`, `3-bookworm`|[Dockerfile](./generated/3/bookworm/Dockerfile)|Debian 12.5|2024-06-15|
-|`3-jammy`|[Dockerfile](./generated/3/jammy/Dockerfile)|Ubuntu 22.04|2024-06-15|
+|`5`, `5-bookworm`, `bookworm`, `latest`|[amd64](./generated/5/linux/amd64/bookworm/Dockerfile), [arm64](./generated/5/linux/arm64/bookworm/Dockerfile)|Debian 12.5|2024-06-16|
+|`5-jammy`, `jammy`|[amd64](./generated/5/linux/amd64/jammy/Dockerfile), [arm64](./generated/5/linux/arm64/jammy/Dockerfile)|Ubuntu 22.04|2024-06-16|
+|`4`, `4-bookworm`|[amd64](./generated/4/linux/amd64/bookworm/Dockerfile)|Debian 12.5|2024-06-16|
+|`4-jammy`|[amd64](./generated/4/linux/amd64/jammy/Dockerfile)|Ubuntu 22.04|2024-06-16|
+|`3`, `3-bookworm`|[amd64](./generated/3/linux/amd64/bookworm/Dockerfile)|Debian 12.5|2024-06-16|
+|`3-jammy`|[amd64](./generated/3/linux/amd64/jammy/Dockerfile)|Ubuntu 22.04|2024-06-16|
 
 
 

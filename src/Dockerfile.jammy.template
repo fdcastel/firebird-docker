@@ -1,7 +1,7 @@
 # Best practices for Dockerfile instructions
 #   https://docs.docker.com/develop/develop-images/instructions/
 
-FROM ubuntu:jammy
+FROM --platform=$BUILDPLATFORM ubuntu:jammy
 
 ENV FIREBIRD_RELEASE_URL=<%$TUrl%>
 ENV FIREBIRD_RELEASE_SHA256=<%$TSha256%>

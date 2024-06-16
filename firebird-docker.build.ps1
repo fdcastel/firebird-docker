@@ -64,29 +64,37 @@ task Prepare {
         $majorFolder = Join-Path $outputFolder $major
         New-Item -ItemType Directory $majorFolder -Force > $null
 
-        # For each image
-        $asset.images | ForEach-Object {
-            $image = $_
+        # For each platform
+        $asset.platforms | Get-Member -MemberType NoteProperty | ForEach-Object {
+            $platform = $_.Name
+            $platformData = $asset.platforms.$platform
 
-            $TUrl = $asset.url
-            $TSha256 = $asset.sha256
-            $TVersion = $asset.tag.TrimStart('v')
-            $TMajor = $major
-            $TImageVersion = "$major-$image"
+            # For each image
+            $asset.images | ForEach-Object {
+                $image = $_
 
-            $TImageTags = $asset.imageTags.$image
-            if ($TImageTags) {
-                # https://stackoverflow.com/a/73073678
-                $TImageTags = "'{0}'" -f ($TImageTags -join "', '")
-            }            
+                $TUrl = $platformData.url
+                $TSha256 = $platformData.sha256
+                $TVersion = $asset.tag.TrimStart('v')
+                $TMajor = $major
+                $TImagePlatform = $platform
+                $TImageVersion = "$major-$image"
 
-            $versionFolder = Join-Path $majorFolder $image
-            New-Item -ItemType Directory $versionFolder -Force > $null
+                $TImageTags = $asset.imageTags.$image
+                if ($TImageTags) {
+                    # https://stackoverflow.com/a/73073678
+                    $TImageTags = "'{0}'" -f ($TImageTags -join "', '")
+                }            
 
-            Copy-TemplateItem "./src/Dockerfile.$image.template" "$versionFolder/Dockerfile"
-            Copy-Item './src/entrypoint.sh' $versionFolder
-            Copy-TemplateItem "./src/image.build.ps1.template" "$versionFolder/image.build.ps1"
-            Copy-Item './src/image.tests.ps1' $versionFolder
+                $platformFolder = Join-Path $majorFolder $platform
+                $imageFolder = Join-Path $platformFolder $image
+                New-Item -ItemType Directory $imageFolder -Force > $null
+
+                Copy-TemplateItem "./src/Dockerfile.$image.template" "$imageFolder/Dockerfile"
+                Copy-Item './src/entrypoint.sh' $imageFolder
+                Copy-TemplateItem "./src/image.build.ps1.template" "$imageFolder/image.build.ps1"
+                Copy-Item './src/image.tests.ps1' $imageFolder
+            }
         }
     }
 }

@@ -5,12 +5,12 @@
 # Best practices for Dockerfile instructions
 #   https://docs.docker.com/develop/develop-images/instructions/
 
-FROM ubuntu:jammy
+FROM --platform=$BUILDPLATFORM ubuntu:jammy
 
-ENV FIREBIRD_RELEASE_URL=https://github.com/FirebirdSQL/firebird/releases/download/v3.0.11/Firebird-3.0.11.33703-0.amd64.tar.gz
-ENV FIREBIRD_RELEASE_SHA256=713757e09b40b2631d800dacd9b80179b7eb75693a72089136055a7154413a3e
-ENV FIREBIRD_VERSION=3.0.11
-ENV FIREBIRD_MAJOR=3
+ENV FIREBIRD_RELEASE_URL=https://github.com/FirebirdSQL/firebird/releases/download/v5.0.0/Firebird-5.0.0.1306-0-linux-arm64.tar.gz
+ENV FIREBIRD_RELEASE_SHA256=bdb62abc91a4c26a86b9377256529622e3046f4ec4f66fbdcf46747688d45033
+ENV FIREBIRD_VERSION=5.0.0
+ENV FIREBIRD_MAJOR=5
 
 # https://linuxcommand.org/lc3_man_pages/seth.html
 #   -e  Exit immediately if a command exits with a non-zero status.
@@ -28,7 +28,8 @@ RUN set -eux; \
         libtomcrypt1 \
         libtommath1 \
         netbase \
-        procps; \
+        procps \
+        tzdata; \
     rm -rf /var/lib/apt/lists/*
 
 # Fix libtommath for FB 3.0 -- https://github.com/FirebirdSQL/firebird/issues/5716#issuecomment-826239174

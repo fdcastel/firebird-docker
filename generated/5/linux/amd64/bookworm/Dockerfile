@@ -5,7 +5,7 @@
 # Best practices for Dockerfile instructions
 #   https://docs.docker.com/develop/develop-images/instructions/
 
-FROM ubuntu:jammy
+FROM --platform=$BUILDPLATFORM debian:bookworm-slim
 
 ENV FIREBIRD_RELEASE_URL=https://github.com/FirebirdSQL/firebird/releases/download/v5.0.0/Firebird-5.0.0.1306-0-linux-x64.tar.gz
 ENV FIREBIRD_RELEASE_SHA256=137b356ea464e224b6ed1241e6dba95b6b950ff1feef91696d4071d4da880768
@@ -23,7 +23,7 @@ RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
         libatomic1 \
-        libicu70 \
+        libicu72 \
         $([ $FIREBIRD_MAJOR -eq 3 ] && echo 'libncurses5' || echo 'libncurses6') \
         libtomcrypt1 \
         libtommath1 \

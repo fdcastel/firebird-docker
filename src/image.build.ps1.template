@@ -6,6 +6,7 @@ param(
 task Build {
     $script:BUILDER_IMAGE_PREFIX = 'ghcr.io/fdcastel'
     $script:BUILDER_IMAGE_NAME = 'firebird'
+    $script:BUILDER_IMAGE_PLATFORM = '<%$TImagePlatform%>'
     $script:BUILDER_IMAGE_VERSION = '<%$TImageVersion%>'
     $script:BUILDER_IMAGE_TAGS = @(<%$TImageTags%>)
 
@@ -15,9 +16,11 @@ task Build {
     $tags = $BUILDER_IMAGE_TAGS + $BUILDER_IMAGE_VERSION | ForEach-Object { '--tag', "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}:$_" }
 
     $allParameters = @(
-        'build'; 
-        $tags; 
-        $noCacheParameter, 
+        'build';
+        '--platform';
+        "$BUILDER_IMAGE_PLATFORM";
+        $tags;
+        $noCacheParameter,
         '--label', 'org.opencontainers.image.description=Firebird Database',
         '--label', 'org.opencontainers.image.source=https://github.com/fdcastel/firebird-docker',
         '--label', 'org.opencontainers.image.version=<%$TImageVersion%>',
