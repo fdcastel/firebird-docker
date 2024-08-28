@@ -7,9 +7,9 @@
 
 FROM ubuntu:jammy
 
-ENV FIREBIRD_RELEASE_URL=https://github.com/FirebirdSQL/firebird/releases/download/v4.0.4/Firebird-4.0.4.3010-0.amd64.tar.gz
-ENV FIREBIRD_RELEASE_SHA256=ef589301c5e13a1f8481e1e38c453641ef5082344bf69edb51f8aa9f036bcaca
-ENV FIREBIRD_VERSION=4.0.4
+ENV FIREBIRD_RELEASE_URL=https://github.com/FirebirdSQL/firebird/releases/download/v4.0.5/Firebird-4.0.5.3140-0.amd64.tar.gz
+ENV FIREBIRD_RELEASE_SHA256=6ae43e4fa31ddc99220575023b7d954fb218c063375bb589b16fbe9fcdfdcaa6
+ENV FIREBIRD_VERSION=4.0.5
 ENV FIREBIRD_MAJOR=4
 
 # https://linuxcommand.org/lc3_man_pages/seth.html
