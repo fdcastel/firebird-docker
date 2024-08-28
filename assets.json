@@ -8,8 +8,8 @@
     "sha256": "137b356ea464e224b6ed1241e6dba95b6b950ff1feef91696d4071d4da880768",
     "images": ["bookworm", "jammy"],
     "imageTags": {
-      "bookworm": ["latest", "bookworm", "5"],
-      "jammy": ["jammy"]
+      "bookworm": ["latest", "bookworm", "5", "5.0.0"],
+      "jammy": ["jammy", "5-jammy", "5.0.0-jammy"]
     }
   },
   {
@@ -21,7 +21,8 @@
     "sha256": "ef589301c5e13a1f8481e1e38c453641ef5082344bf69edb51f8aa9f036bcaca",
     "images": ["bookworm", "jammy"],
     "imageTags": {
-      "bookworm": ["4"]
+      "bookworm": ["4", "4.0.4"],
+      "jammy": ["4-jammy", "4.0.4-jammy"]
     }
   },
   {
@@ -33,7 +34,8 @@
     "sha256": "713757e09b40b2631d800dacd9b80179b7eb75693a72089136055a7154413a3e",
     "images": ["bookworm", "jammy"],
     "imageTags": {
-      "bookworm": ["3"]
+      "bookworm": ["3", "3.0.11"],
+      "jammy": ["3-jammy", "3.0.11-jammy"]
     }
   }
 ]
