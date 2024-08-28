@@ -7,9 +7,9 @@
 
 FROM --platform=$BUILDPLATFORM debian:bookworm-slim
 
-ENV FIREBIRD_RELEASE_URL=https://github.com/FirebirdSQL/firebird/releases/download/v5.0.0/Firebird-5.0.0.1306-0-linux-arm64.tar.gz
-ENV FIREBIRD_RELEASE_SHA256=bdb62abc91a4c26a86b9377256529622e3046f4ec4f66fbdcf46747688d45033
-ENV FIREBIRD_VERSION=5.0.0
+ENV FIREBIRD_RELEASE_URL=https://github.com/FirebirdSQL/firebird/releases/download/v5.0.1/Firebird-5.0.1.1469-0-linux-arm64.tar.gz
+ENV FIREBIRD_RELEASE_SHA256=46b3f4f170458a93365c67118c062ba8509903fe8293bf8a62e7bd8a388e2d06
+ENV FIREBIRD_VERSION=5.0.1
 ENV FIREBIRD_MAJOR=5
 
 # https://linuxcommand.org/lc3_man_pages/seth.html

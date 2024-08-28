@@ -7,9 +7,9 @@
 
 FROM --platform=$BUILDPLATFORM ubuntu:jammy
 
-ENV FIREBIRD_RELEASE_URL=https://github.com/FirebirdSQL/firebird/releases/download/v5.0.0/Firebird-5.0.0.1306-0-linux-x64.tar.gz
-ENV FIREBIRD_RELEASE_SHA256=137b356ea464e224b6ed1241e6dba95b6b950ff1feef91696d4071d4da880768
-ENV FIREBIRD_VERSION=5.0.0
+ENV FIREBIRD_RELEASE_URL=https://github.com/FirebirdSQL/firebird/releases/download/v5.0.1/Firebird-5.0.1.1469-0-linux-x64.tar.gz
+ENV FIREBIRD_RELEASE_SHA256=e1023b005e5d6db8f717af032e91f0f94aa7a8dbe0e78f250931214ca0a21e57
+ENV FIREBIRD_VERSION=5.0.1
 ENV FIREBIRD_MAJOR=5
 
 # https://linuxcommand.org/lc3_man_pages/seth.html

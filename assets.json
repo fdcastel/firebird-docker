@@ -1,16 +1,16 @@
 ﻿[
   {
-    "tag": "v5.0.0",
+    "tag": "v5.0.1",
     "platforms": {
       "linux/amd64": {
-        "name": "Firebird-5.0.0.1306-0-linux-x64.tar.gz",
-        "url": "https://github.com/FirebirdSQL/firebird/releases/download/v5.0.0/Firebird-5.0.0.1306-0-linux-x64.tar.gz",
-        "sha256": "137b356ea464e224b6ed1241e6dba95b6b950ff1feef91696d4071d4da880768"
+        "name": "Firebird-5.0.1.1469-0-linux-x64.tar.gz",
+        "url": "https://github.com/FirebirdSQL/firebird/releases/download/v5.0.1/Firebird-5.0.1.1469-0-linux-x64.tar.gz",
+        "sha256": "e1023b005e5d6db8f717af032e91f0f94aa7a8dbe0e78f250931214ca0a21e57"
       },
       "linux/arm64": {
-        "name": "Firebird-5.0.0.1306-0-linux-x64.tar.gz",
-        "url": "https://github.com/FirebirdSQL/firebird/releases/download/v5.0.0/Firebird-5.0.0.1306-0-linux-arm64.tar.gz",
-        "sha256": "bdb62abc91a4c26a86b9377256529622e3046f4ec4f66fbdcf46747688d45033"
+        "name": "Firebird-5.0.1.1469-0-linux-arm64.tar.gz",
+        "url": "https://github.com/FirebirdSQL/firebird/releases/download/v5.0.1/Firebird-5.0.1.1469-0-linux-arm64.tar.gz",
+        "sha256": "46b3f4f170458a93365c67118c062ba8509903fe8293bf8a62e7bd8a388e2d06"
       }
     },
     "images": ["bookworm", "jammy"],
@@ -20,12 +20,17 @@
     }
   },
   {
-    "tag": "v4.0.4",
+    "tag": "v4.0.5",
     "platforms": {
       "linux/amd64": {
-        "name": "Firebird-4.0.4.3010-0.amd64.tar.gz",
-        "url": "https://github.com/FirebirdSQL/firebird/releases/download/v4.0.4/Firebird-4.0.4.3010-0.amd64.tar.gz",
-        "sha256": "ef589301c5e13a1f8481e1e38c453641ef5082344bf69edb51f8aa9f036bcaca"
+        "name": "Firebird-4.0.5.3140-0.amd64.tar.gz",
+        "url": "https://github.com/FirebirdSQL/firebird/releases/download/v4.0.5/Firebird-4.0.5.3140-0.amd64.tar.gz",
+        "sha256": "6ae43e4fa31ddc99220575023b7d954fb218c063375bb589b16fbe9fcdfdcaa6"
+      },
+      "linux/arm64": {
+        "name": "Firebird-4.0.5.3140-0.arm64.tar.gz",
+        "url": "https://github.com/FirebirdSQL/firebird/releases/download/v4.0.5/Firebird-4.0.5.3140-0.arm64.tar.gz",
+        "sha256": "83b1f51ee225ccd89990aa078c5a736f4887bfe92806e15f81cc63d1985cf8cc"
       }
     },
     "images": ["bookworm", "jammy"],
@@ -34,12 +39,17 @@
     }
   },
   {
-    "tag": "v3.0.11",
+    "tag": "v3.0.12",
     "platforms": {
       "linux/amd64": {
-        "name": "Firebird-3.0.11.33703-0.amd64.tar.gz",
-        "url": "https://github.com/FirebirdSQL/firebird/releases/download/v3.0.11/Firebird-3.0.11.33703-0.amd64.tar.gz",
-        "sha256": "713757e09b40b2631d800dacd9b80179b7eb75693a72089136055a7154413a3e"
+        "name": "Firebird-3.0.12.33787-0.amd64.tar.gz",
+        "url": "https://github.com/FirebirdSQL/firebird/releases/download/v3.0.12/Firebird-3.0.12.33787-0.amd64.tar.gz",
+        "sha256": "406a8887ab318a5d8a20781fc1d38a0ca30acdbddbc1558b077646bb2e2e283f"
+      },
+      "linux/arm64": {
+        "name": "Firebird-3.0.12.33787-0.arm64.tar.gz",
+        "url": "https://github.com/FirebirdSQL/firebird/releases/download/v3.0.12/Firebird-3.0.12.33787-0.arm64.tar.gz",
+        "sha256": "e629d03f7e8684716ecb4fade563fa8eb4e4b7c96d48fd2b6dcf081a2d7557c9"
       }
     },
     "images": ["bookworm", "jammy"],
