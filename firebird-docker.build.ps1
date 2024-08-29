@@ -20,6 +20,11 @@ function Expand-Template([Parameter(ValueFromPipeline = $true)]$Template) {
 }
 
 function Copy-TemplateItem([string]$Path, [string]$Destination) {
+    if (Test-Path $Destination) {
+        # File already exists. Ignore.
+        return
+    }
+
     # Add header
     @'
 #
@@ -38,15 +43,102 @@ function Copy-TemplateItem([string]$Path, [string]$Destination) {
     $outputFile.Attributes += 'ReadOnly'
 }
 
+function Use-CachedResponse {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$JsonFile,
+
+        [scriptblock]$ScriptBlock
+    )
+
+    if (Test-Path $JsonFile) {
+        return Get-Content $JsonFile | ConvertFrom-Json
+    }
+
+    $result = Invoke-Command -ScriptBlock $ScriptBlock
+    return $result | ConvertTo-Json -Depth 10 | Out-File $JsonFile -Encoding utf8
+}
+
 
 
 #
 # Tasks
 #
 
+# Synopsis: Rebuild "assets.json" from GitHub releases.
+task Update-Assets {
+    $tempFolder = [System.IO.Path]::GetTempPath()
+
+    $releasesFile = Join-Path $tempFolder 'github-releases.json'
+    $assetsFolder = Join-Path $tempFolder 'firebird-assets'
+    New-Item $assetsFolder -ItemType Directory -Force > $null
+
+    # All github releases
+    $releases = Use-CachedResponse -JsonFile $releasesFile { Invoke-RestMethod -Uri "https://api.github.com/repos/FirebirdSQL/firebird/releases" -UseBasicParsing }
+
+    # Ignore legacy and prerelease
+    $currentReleases = $releases | Where-Object { ($_.tag_name -like 'v*') -and (-not $_.prerelease) }
+
+    # Select only amd64 and non-debug assets
+    $currentAssets = $currentReleases |
+        Select-Object -Property @{ Name='version'; Expression={ [version]$_.tag_name.TrimStart("v") } },
+                                @{ Name='download_url'; Expression={ $_.assets.browser_download_url | Where-Object { ( $_ -like '*amd64*' -or $_ -like '*linux-x64*') -and ($_ -notlike '*debug*') } } } |
+        Sort-Object -Property version -Descending
+
+    # Group by major version
+    $groupedAssets = $currentAssets |
+        Select-Object -Property @{ Name='major'; Expression={ $_.version.Major } }, 'version', 'download_url' |
+        Group-Object -Property 'major'
+
+    # For each asset
+    $groupedAssets | ForEach-Object -Begin { $groupIndex = 0 } -Process {
+        # For each major version
+        $_.Group | ForEach-Object -Begin { $index = 0 } -Process {
+            $asset = $_
+
+            $assetFileName = ([uri]$asset.download_url).Segments[-1]
+            $assetLocalFile = Join-Path $assetsFolder $assetFileName
+            if (-not (Test-Path $assetLocalFile)) {
+                $ProgressPreference = 'SilentlyContinue'    # How NOT to implement a progress bar -- https://stackoverflow.com/a/43477248
+                Invoke-WebRequest $asset.download_url -OutFile $assetLocalFile
+            }
+
+            $sha256 = Get-FileHash $assetLocalFile -Algorithm SHA256
+
+            $bookwormTags = @("$($asset.version)")
+            $jammyTags = @("$($asset.version)-jammy")
+
+            if ($index -eq 0) {
+                # latest of this major version
+                $bookwormTags = @("$($asset.major)") + $bookwormTags
+                $jammyTags = @("$($asset.major)-jammy") + $jammyTags
+            }
+
+            if (($groupIndex -eq 0) -and ($index -eq 0)) {
+                # latest of all
+                $bookwormTags = @('bookworm') + $bookwormTags
+                $jammyTags = @('jammy') + $jammyTags
+            }
+
+            Write-Output ([ordered]@{
+                'version' = "$($asset.version)"
+                'url' = $asset.download_url
+                'sha256' = $sha256.Hash.ToLower()
+                'tags' = [ordered]@{
+                    'bookworm' = $bookwormTags
+                    'jammy' = $jammyTags
+                }
+            })
+
+            $index++
+        }
+        $groupIndex++
+    } | ConvertTo-Json -Depth 10 | Out-File './assets.json' -Encoding ascii
+}
+
 # Synopsis: Invoke preprocessor to generate images sources.
 task Prepare {
-    # Clear output folder
+    # Clear/create output folder
     Remove-Item -Path $outputFolder -Recurse -Force -ErrorAction SilentlyContinue
     New-Item -ItemType Directory $outputFolder -Force > $null
 
@@ -55,30 +147,27 @@ task Prepare {
     $assets | ForEach-Object {
         $asset = $_
 
-        # https://regexr.com/7vo8e
-        if ($asset.tag -notmatch 'v(?<Major>\d+)\.(?<Minor>\d+).(?<Patch>\d+)') {
-            throw "Invalid tag: $($asset.tag)"
-        }
+        $version = [version]$asset.version
 
-        $major = $Matches.Major
+        $major = $version.Major
         $majorFolder = Join-Path $outputFolder $major
         New-Item -ItemType Directory $majorFolder -Force > $null
 
         # For each image
-        $asset.images | ForEach-Object {
-            $image = $_
+        $asset.tags | Get-Member -MemberType NoteProperty | ForEach-Object {
+            $image = $_.Name
 
             $TUrl = $asset.url
             $TSha256 = $asset.sha256
-            $TVersion = $asset.tag.TrimStart('v')
+            $TVersion = $version
             $TMajor = $major
             $TImageVersion = "$major-$image"
 
-            $TImageTags = $asset.imageTags.$image
+            $TImageTags = $asset.tags.$image
             if ($TImageTags) {
                 # https://stackoverflow.com/a/73073678
                 $TImageTags = "'{0}'" -f ($TImageTags -join "', '")
-            }            
+            }
 
             $versionFolder = Join-Path $majorFolder $image
             New-Item -ItemType Directory $versionFolder -Force > $null
@@ -95,7 +184,7 @@ task Prepare {
 task Build Prepare, {
     $builds = Get-ChildItem "$outputFolder/**/image.build.ps1" -Recurse | ForEach-Object {
         @{File = $_; Task = 'Build' }
-    }    
+    }
     Build-Parallel $builds
 }
 
@@ -103,7 +192,7 @@ task Build Prepare, {
 task Test {
     $builds = Get-ChildItem "$outputFolder/**/image.build.ps1" -Recurse | ForEach-Object {
         @{File = $_; Task = 'Test' }
-    }    
+    }
     Build-Parallel $builds
 }
 
@@ -111,7 +200,7 @@ task Test {
 task Publish {
     $builds = Get-ChildItem "$outputFolder/**/image.build.ps1" -Recurse | ForEach-Object {
         @{File = $_; Task = 'Publish' }
-    }    
+    }
     Build-Parallel $builds
 }
 
