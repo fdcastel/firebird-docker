@@ -12,7 +12,7 @@ task Build {
     $env:FULL_IMAGE_NAME = "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}:$BUILDER_IMAGE_VERSION"
 
     $noCacheParameter = if ($NoCache) { '--no-cache' } else { $null }
-    $tags = $BUILDER_IMAGE_TAGS + $BUILDER_IMAGE_VERSION | ForEach-Object { '--tag', "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}:$_" }
+    $tags = $BUILDER_IMAGE_TAGS | ForEach-Object { '--tag', "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}:$_" }
 
     $allParameters = @(
         'build'; 
@@ -37,7 +37,7 @@ task Test Build, {
 task Publish Build, {
     Write-Build Magenta "----- [$BUILDER_IMAGE_VERSION] ---------------------"
 
-    $BUILDER_IMAGE_TAGS + $BUILDER_IMAGE_VERSION | ForEach-Object {
+    $BUILDER_IMAGE_TAGS | ForEach-Object {
         docker push "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}:$_"
     }
 }

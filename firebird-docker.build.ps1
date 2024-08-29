@@ -23,19 +23,43 @@ function Expand-Template([Parameter(ValueFromPipeline = $true)]$Template) {
     $regex.Replace($Template, $evaluator)
 }
 
-function Copy-TemplateItem([string]$Path, [string]$Destination) {
+function Copy-TemplateItem([string]$Path, [string]$Destination, [switch]$Force) {
     if (Test-Path $Destination) {
+        # File already exists. 
+
+        if ($Force) {
+            # With -Force: Overwrite.
+            $outputFile = Get-Item $Destination
+            $outputFile.Attributes -= 'ReadOnly'
+        } else {
+            # Without -Force: Nothing to do.
+            return
+        }
+    }
+
+
+    if ( (-not $Force) -and (Test-Path $Destination) ) {
         # File already exists. Ignore.
         return
     }
 
     # Add header
-    @'
+    $fileExtension = $Destination.Split('.')[-1]
+    $header = if ($fileExtension -eq 'md') {
+        @'
+
+[//]: # (This file was auto-generated. Do not edit. See /src.)
+
+'@
+    } else {
+        @'
 #
-# This file was generated. Do not edit. See /src.
+# This file was auto-generated. Do not edit. See /src.
 #
 
-'@ | Set-Content $Destination -Encoding UTF8
+'@
+    }
+    $header | Set-Content $Destination -Encoding UTF8
 
     # Expand template
     Get-Content $Path -Raw -Encoding UTF8 |
@@ -109,7 +133,7 @@ task Update-Assets {
             $asset = $_
 
             # Remove blocked variants
-            
+
             $otherVariants = $allOtherVariants | Where-Object { $_ -notin $blockedVariants."$($asset.major)" }
             $variants = $allVariants | Where-Object { $_ -notin $blockedVariants."$($asset.major)" }
 
@@ -157,22 +181,49 @@ task Update-Assets {
     } | ConvertTo-Json -Depth 10 | Out-File './assets.json' -Encoding ascii
 }
 
-# Synopsis: Invoke preprocessor to generate images sources.
+# Synopsis: Rebuild "README.md" from "assets.json".
+task Update-Readme {
+    # For each asset
+    $assets = Get-Content -Raw -Path '.\assets.json' | ConvertFrom-Json 
+    $TSupportedTags = $assets | ForEach-Object {
+        $asset = $_
+
+        $version = [version]$asset.version
+        $versionFolder = Join-Path $outputFolder $version
+
+        # For each image
+        $asset.tags | Get-Member -MemberType NoteProperty | ForEach-Object {
+            $image = $_.Name
+
+            $TImageTags = $asset.tags.$image
+            if ($TImageTags) {
+                # https://stackoverflow.com/a/73073678
+                $TImageTags = "``{0}``" -f ($TImageTags -join "``, ``")
+            }
+
+            $variantFolder = (Join-Path $versionFolder $image).Replace('\', '/')
+
+            Write-Output "|$TImageTags|[Dockerfile]($variantFolder/Dockerfile)|`n"
+        }
+    }
+
+    Copy-TemplateItem "./src/README.md.template" './README.md' -Force
+}
+
+# Synopsis: Invoke preprocessor to generate images sources from "assets.json".
 task Prepare {
     # Clear/create output folder
     Remove-Item -Path $outputFolder -Recurse -Force -ErrorAction SilentlyContinue
     New-Item -ItemType Directory $outputFolder -Force > $null
 
     # For each asset
-    $assets = Get-Content -Raw -Path '.\assets.json' | ConvertFrom-Json
+    $assets = Get-Content -Raw -Path '.\assets.json' | ConvertFrom-Json 
     $assets | ForEach-Object {
         $asset = $_
 
         $version = [version]$asset.version
-
-        $major = $version.Major
-        $majorFolder = Join-Path $outputFolder $major
-        New-Item -ItemType Directory $majorFolder -Force > $null
+        $versionFolder = Join-Path $outputFolder $version
+        New-Item -ItemType Directory $versionFolder -Force > $null
 
         # For each image
         $asset.tags | Get-Member -MemberType NoteProperty | ForEach-Object {
@@ -180,9 +231,8 @@ task Prepare {
 
             $TUrl = $asset.url
             $TSha256 = $asset.sha256
-            $TVersion = $version
-            $TMajor = $major
-            $TImageVersion = "$major-$image"
+            $TMajor = $version.Major
+            $TImageVersion = $version
 
             $TImageTags = $asset.tags.$image
             if ($TImageTags) {
@@ -190,13 +240,13 @@ task Prepare {
                 $TImageTags = "'{0}'" -f ($TImageTags -join "', '")
             }
 
-            $versionFolder = Join-Path $majorFolder $image
-            New-Item -ItemType Directory $versionFolder -Force > $null
+            $variantFolder = Join-Path $versionFolder $image
+            New-Item -ItemType Directory $variantFolder -Force > $null
 
-            Copy-TemplateItem "./src/Dockerfile.$image.template" "$versionFolder/Dockerfile"
-            Copy-Item './src/entrypoint.sh' $versionFolder
-            Copy-TemplateItem "./src/image.build.ps1.template" "$versionFolder/image.build.ps1"
-            Copy-Item './src/image.tests.ps1' $versionFolder
+            Copy-TemplateItem "./src/Dockerfile.$image.template" "$variantFolder/Dockerfile"
+            Copy-Item './src/entrypoint.sh' $variantFolder
+            Copy-TemplateItem "./src/image.build.ps1.template" "$variantFolder/image.build.ps1"
+            Copy-Item './src/image.tests.ps1' $variantFolder
         }
     }
 }

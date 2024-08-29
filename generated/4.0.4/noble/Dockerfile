@@ -1,12 +1,16 @@
+﻿#
+# This file was auto-generated. Do not edit. See /src.
+#
+
 # Best practices for Dockerfile instructions
 #   https://docs.docker.com/develop/develop-images/instructions/
 
-FROM ubuntu:jammy
+FROM ubuntu:noble
 
-ENV FIREBIRD_RELEASE_URL=<%$TUrl%>
-ENV FIREBIRD_RELEASE_SHA256=<%$TSha256%>
-ENV FIREBIRD_VERSION=<%$TImageVersion%>
-ENV FIREBIRD_MAJOR=<%$TMajor%>
+ENV FIREBIRD_RELEASE_URL=https://github.com/FirebirdSQL/firebird/releases/download/v4.0.4/Firebird-4.0.4.3010-0.amd64.tar.gz
+ENV FIREBIRD_RELEASE_SHA256=ef589301c5e13a1f8481e1e38c453641ef5082344bf69edb51f8aa9f036bcaca
+ENV FIREBIRD_VERSION=4.0.4
+ENV FIREBIRD_MAJOR=4
 
 # https://linuxcommand.org/lc3_man_pages/seth.html
 #   -e  Exit immediately if a command exits with a non-zero status.
@@ -14,13 +18,12 @@ ENV FIREBIRD_MAJOR=<%$TMajor%>
 #   -x  Print commands and their arguments as they are executed.
 
 # Prerequisites
-#   FB 3.0 uses libncurses5: https://github.com/FirebirdSQL/firebird/issues/6418#issuecomment-826245785
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
         libatomic1 \
-        libicu70 \
-        $([ $FIREBIRD_MAJOR -eq 3 ] && echo 'libncurses5' || echo 'libncurses6') \
+        libicu74 \
+        libncurses6 \
         libtomcrypt1 \
         libtommath1 \
         netbase \
@@ -75,3 +78,4 @@ EXPOSE 3050/tcp
 ENV TERMINFO=/lib/terminfo/
 
 CMD ["firebird"]
+

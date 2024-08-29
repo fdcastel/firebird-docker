@@ -1,12 +1,16 @@
+﻿#
+# This file was auto-generated. Do not edit. See /src.
+#
+
 # Best practices for Dockerfile instructions
 #   https://docs.docker.com/develop/develop-images/instructions/
 
-FROM ubuntu:jammy
+FROM debian:bullseye-slim
 
-ENV FIREBIRD_RELEASE_URL=<%$TUrl%>
-ENV FIREBIRD_RELEASE_SHA256=<%$TSha256%>
-ENV FIREBIRD_VERSION=<%$TImageVersion%>
-ENV FIREBIRD_MAJOR=<%$TMajor%>
+ENV FIREBIRD_RELEASE_URL=https://github.com/FirebirdSQL/firebird/releases/download/v3.0.8/Firebird-3.0.8.33535-0.amd64.tar.gz
+ENV FIREBIRD_RELEASE_SHA256=fbf154244d3568f4de4ee68769ed71a0699845197ae1c02c2029dc4d0f1af5f9
+ENV FIREBIRD_VERSION=3.0.8
+ENV FIREBIRD_MAJOR=3
 
 # https://linuxcommand.org/lc3_man_pages/seth.html
 #   -e  Exit immediately if a command exits with a non-zero status.
@@ -19,13 +23,12 @@ RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends \
         libatomic1 \
-        libicu70 \
+        libicu67 \
         $([ $FIREBIRD_MAJOR -eq 3 ] && echo 'libncurses5' || echo 'libncurses6') \
         libtomcrypt1 \
         libtommath1 \
         netbase \
-        procps \
-        tzdata; \
+        procps; \
     rm -rf /var/lib/apt/lists/*
 
 # Fix libtommath for FB 3.0 -- https://github.com/FirebirdSQL/firebird/issues/5716#issuecomment-826239174
@@ -75,3 +78,4 @@ EXPOSE 3050/tcp
 ENV TERMINFO=/lib/terminfo/
 
 CMD ["firebird"]
+

@@ -5,7 +5,7 @@ FROM debian:bookworm-slim
 
 ENV FIREBIRD_RELEASE_URL=<%$TUrl%>
 ENV FIREBIRD_RELEASE_SHA256=<%$TSha256%>
-ENV FIREBIRD_VERSION=<%$TVersion%>
+ENV FIREBIRD_VERSION=<%$TImageVersion%>
 ENV FIREBIRD_MAJOR=<%$TMajor%>
 
 # https://linuxcommand.org/lc3_man_pages/seth.html
