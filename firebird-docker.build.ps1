@@ -163,7 +163,8 @@ task Update-Assets {
 
             if (($groupIndex -eq 0) -and ($index -eq 0)) {
                 # latest of all
-                $variants | ForEach-Object {
+                $tags[$defaultVariant] += 'latest'
+                $otherVariants | ForEach-Object {
                     $tags[$_] = @("$_") + $tags[$_]
                 }
             }
