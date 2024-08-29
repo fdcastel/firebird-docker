@@ -3,7 +3,10 @@
 #
 
 $outputFolder = './generated'
+
 $defaultVariant = 'bookworm'
+
+$blockedVariants = @{'3' = @('noble') }    # Ubuntu 24.04 doesn't have libncurses5.
 
 
 
@@ -93,17 +96,22 @@ task Update-Assets {
 
     # Get Variants
     $dockerFiles = Get-Item './src/Dockerfile.*.template'
-    $otherVariants = $dockerFiles.Name |
+    $allOtherVariants = $dockerFiles.Name |
         Select-String -Pattern 'Dockerfile.(.+).template' |
         ForEach-Object { $_.Matches.Groups[1].Value } |
         Where-Object { $_ -ne $defaultVariant }
-    $variants = @($defaultVariant) + $otherVariants
+    $allVariants = @($defaultVariant) + $otherVariants
 
     # For each asset
     $groupedAssets | ForEach-Object -Begin { $groupIndex = 0 } -Process {
         # For each major version
         $_.Group | ForEach-Object -Begin { $index = 0 } -Process {
             $asset = $_
+
+            # Remove blocked variants
+            
+            $otherVariants = $allOtherVariants | Where-Object { $_ -notin $blockedVariants."$($asset.major)" }
+            $variants = $allVariants | Where-Object { $_ -notin $blockedVariants."$($asset.major)" }
 
             $assetFileName = ([uri]$asset.download_url).Segments[-1]
             $assetLocalFile = Join-Path $assetsFolder $assetFileName
