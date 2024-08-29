@@ -3,6 +3,7 @@
 #
 
 $outputFolder = './generated'
+$defaultVariant = 'bookworm'
 
 
 
@@ -90,6 +91,14 @@ task Update-Assets {
         Select-Object -Property @{ Name='major'; Expression={ $_.version.Major } }, 'version', 'download_url' |
         Group-Object -Property 'major'
 
+    # Get Variants
+    $dockerFiles = Get-Item './src/Dockerfile.*.template'
+    $otherVariants = $dockerFiles.Name |
+        Select-String -Pattern 'Dockerfile.(.+).template' |
+        ForEach-Object { $_.Matches.Groups[1].Value } |
+        Where-Object { $_ -ne $defaultVariant }
+    $variants = @($defaultVariant) + $otherVariants
+
     # For each asset
     $groupedAssets | ForEach-Object -Begin { $groupIndex = 0 } -Process {
         # For each major version
@@ -105,29 +114,33 @@ task Update-Assets {
 
             $sha256 = Get-FileHash $assetLocalFile -Algorithm SHA256
 
-            $bookwormTags = @("$($asset.version)")
-            $jammyTags = @("$($asset.version)-jammy")
+            $tags = [ordered]@{}
+
+            $tags[$defaultVariant] = @("$($asset.version)")
+            $otherVariants | ForEach-Object {
+                $tags[$_] = @("$($asset.version)-$_")
+            }
 
             if ($index -eq 0) {
                 # latest of this major version
-                $bookwormTags = @("$($asset.major)") + $bookwormTags
-                $jammyTags = @("$($asset.major)-jammy") + $jammyTags
+                $tags[$defaultVariant] = @("$($asset.major)") + $tags[$defaultVariant]
+                $otherVariants | ForEach-Object {
+                    $tags[$_] = @("$($asset.major)-$_") + $tags[$_]
+                }
             }
 
             if (($groupIndex -eq 0) -and ($index -eq 0)) {
                 # latest of all
-                $bookwormTags = @('bookworm') + $bookwormTags
-                $jammyTags = @('jammy') + $jammyTags
+                $variants | ForEach-Object {
+                    $tags[$_] = @("$_") + $tags[$_]
+                }
             }
 
             Write-Output ([ordered]@{
                 'version' = "$($asset.version)"
                 'url' = $asset.download_url
                 'sha256' = $sha256.Hash.ToLower()
-                'tags' = [ordered]@{
-                    'bookworm' = $bookwormTags
-                    'jammy' = $jammyTags
-                }
+                'tags' = $tags
             })
 
             $index++

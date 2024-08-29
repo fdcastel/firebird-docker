@@ -9,10 +9,20 @@
                                       "5",
                                       "5.0.1"
                                   ],
+                     "bullseye":  [
+                                      "bullseye",
+                                      "5-bullseye",
+                                      "5.0.1-bullseye"
+                                  ],
                      "jammy":  [
                                    "jammy",
                                    "5-jammy",
                                    "5.0.1-jammy"
+                               ],
+                     "noble":  [
+                                   "noble",
+                                   "5-noble",
+                                   "5.0.1-noble"
                                ]
                  }
     },
@@ -24,8 +34,14 @@
                      "bookworm":  [
                                       "5.0.0"
                                   ],
+                     "bullseye":  [
+                                      "5.0.0-bullseye"
+                                  ],
                      "jammy":  [
                                    "5.0.0-jammy"
+                               ],
+                     "noble":  [
+                                   "5.0.0-noble"
                                ]
                  }
     },
@@ -38,9 +54,17 @@
                                       "4",
                                       "4.0.5"
                                   ],
+                     "bullseye":  [
+                                      "4-bullseye",
+                                      "4.0.5-bullseye"
+                                  ],
                      "jammy":  [
                                    "4-jammy",
                                    "4.0.5-jammy"
+                               ],
+                     "noble":  [
+                                   "4-noble",
+                                   "4.0.5-noble"
                                ]
                  }
     },
@@ -52,8 +76,14 @@
                      "bookworm":  [
                                       "4.0.4"
                                   ],
+                     "bullseye":  [
+                                      "4.0.4-bullseye"
+                                  ],
                      "jammy":  [
                                    "4.0.4-jammy"
+                               ],
+                     "noble":  [
+                                   "4.0.4-noble"
                                ]
                  }
     },
@@ -65,8 +95,14 @@
                      "bookworm":  [
                                       "4.0.3"
                                   ],
+                     "bullseye":  [
+                                      "4.0.3-bullseye"
+                                  ],
                      "jammy":  [
                                    "4.0.3-jammy"
+                               ],
+                     "noble":  [
+                                   "4.0.3-noble"
                                ]
                  }
     },
@@ -78,8 +114,14 @@
                      "bookworm":  [
                                       "4.0.2"
                                   ],
+                     "bullseye":  [
+                                      "4.0.2-bullseye"
+                                  ],
                      "jammy":  [
                                    "4.0.2-jammy"
+                               ],
+                     "noble":  [
+                                   "4.0.2-noble"
                                ]
                  }
     },
@@ -91,8 +133,14 @@
                      "bookworm":  [
                                       "4.0.1"
                                   ],
+                     "bullseye":  [
+                                      "4.0.1-bullseye"
+                                  ],
                      "jammy":  [
                                    "4.0.1-jammy"
+                               ],
+                     "noble":  [
+                                   "4.0.1-noble"
                                ]
                  }
     },
@@ -104,8 +152,14 @@
                      "bookworm":  [
                                       "4.0.0"
                                   ],
+                     "bullseye":  [
+                                      "4.0.0-bullseye"
+                                  ],
                      "jammy":  [
                                    "4.0.0-jammy"
+                               ],
+                     "noble":  [
+                                   "4.0.0-noble"
                                ]
                  }
     },
@@ -118,9 +172,17 @@
                                       "3",
                                       "3.0.12"
                                   ],
+                     "bullseye":  [
+                                      "3-bullseye",
+                                      "3.0.12-bullseye"
+                                  ],
                      "jammy":  [
                                    "3-jammy",
                                    "3.0.12-jammy"
+                               ],
+                     "noble":  [
+                                   "3-noble",
+                                   "3.0.12-noble"
                                ]
                  }
     },
@@ -132,8 +194,14 @@
                      "bookworm":  [
                                       "3.0.11"
                                   ],
+                     "bullseye":  [
+                                      "3.0.11-bullseye"
+                                  ],
                      "jammy":  [
                                    "3.0.11-jammy"
+                               ],
+                     "noble":  [
+                                   "3.0.11-noble"
                                ]
                  }
     },
@@ -145,8 +213,14 @@
                      "bookworm":  [
                                       "3.0.10"
                                   ],
+                     "bullseye":  [
+                                      "3.0.10-bullseye"
+                                  ],
                      "jammy":  [
                                    "3.0.10-jammy"
+                               ],
+                     "noble":  [
+                                   "3.0.10-noble"
                                ]
                  }
     },
@@ -158,8 +232,14 @@
                      "bookworm":  [
                                       "3.0.9"
                                   ],
+                     "bullseye":  [
+                                      "3.0.9-bullseye"
+                                  ],
                      "jammy":  [
                                    "3.0.9-jammy"
+                               ],
+                     "noble":  [
+                                   "3.0.9-noble"
                                ]
                  }
     },
@@ -171,8 +251,14 @@
                      "bookworm":  [
                                       "3.0.8"
                                   ],
+                     "bullseye":  [
+                                      "3.0.8-bullseye"
+                                  ],
                      "jammy":  [
                                    "3.0.8-jammy"
+                               ],
+                     "noble":  [
+                                   "3.0.8-noble"
                                ]
                  }
     }
