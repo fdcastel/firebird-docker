@@ -131,30 +131,6 @@ task Without_command_should_start_Firebird {
     }
 }
 
-task ISC_PASSWORD_can_change_sysdba_password {
-    Use-Container -Parameters '-e', 'ISC_PASSWORD=passw0rd' {
-        param($cId)
-
-        docker exec $cId cat /opt/firebird/SYSDBA.password |
-            ContainsExactly -Pattern 'passw0rd' -ExpectedCount 2
-
-        docker logs $cId |
-            Contains -Pattern 'Changing SYSDBA password'
-    }
-}
-
-task FIREBIRD_ROOT_PASSWORD_can_change_sysdba_password {
-    Use-Container -Parameters '-e', 'FIREBIRD_ROOT_PASSWORD=passw0rd' {
-        param($cId)
-
-        docker exec $cId cat /opt/firebird/SYSDBA.password |
-            ContainsExactly -Pattern 'passw0rd' -ExpectedCount 2
-
-        docker logs $cId |
-            Contains -Pattern 'Changing SYSDBA password'
-    }
-}
-
 task FIREBIRD_DATABASE_can_create_database {
     Use-Container -Parameters '-e', 'FIREBIRD_DATABASE=test.fdb' {
         param($cId)
@@ -228,7 +204,7 @@ task FIREBIRD_USER_can_create_user {
         param($cId)
 
         # Use 'SET BAIL ON' (-b) for isql to return exit codes.
-        # USe 'inet://' protocol to not connect directly to database (skipping authentication)
+        # Use 'inet://' protocol to not connect directly to database (skipping authentication)
 
         # Correct password
         'SELECT 1 FROM rdb$database;' |
@@ -240,8 +216,35 @@ task FIREBIRD_USER_can_create_user {
             docker exec -i $cId isql -b -q -u alice -p tiger inet:///run/firebird/data/test.fdb 2>&1 |
                 ExitCodeIs -ExpectedValue 1
 
+        # File /opt/firebird/SYSDBA.password exists?
+        docker exec $cId test -f /opt/firebird/SYSDBA.password |
+            ExitCodeIs -ExpectedValue 0
+    
         docker logs $cId |
             Contains -Pattern "Creating user 'alice'"
+    }
+}
+
+task FIREBIRD_ROOT_PASSWORD_can_change_sysdba_password {
+    Use-Container -Parameters '-e', 'FIREBIRD_DATABASE=test.fdb', '-e', 'FIREBIRD_ROOT_PASSWORD=passw0rd' {
+        param($cId)
+
+        # Correct password
+        'SELECT 1 FROM rdb$database;' |
+            docker exec -i $cId isql -b -q -u SYSDBA -p passw0rd inet:///run/firebird/data/test.fdb |
+                ExitCodeIs -ExpectedValue 0
+
+        # Incorrect password
+        'SELECT 1 FROM rdb$database;' |
+            docker exec -i $cId isql -b -q -u SYSDBA -p tiger inet:///run/firebird/data/test.fdb 2>&1 |
+                ExitCodeIs -ExpectedValue 1
+
+        # File /opt/firebird/SYSDBA.password removed?
+        docker exec $cId test -f /opt/firebird/SYSDBA.password |
+            ExitCodeIs -ExpectedValue 1
+    
+        docker logs $cId |
+            Contains -Pattern 'Changing SYSDBA password'
     }
 }
 

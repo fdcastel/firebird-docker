@@ -77,11 +77,10 @@ The following environment variables can be used to customize the container.
 
 
 ### `FIREBIRD_ROOT_PASSWORD`
-  - _alternate name_: `ISC_PASSWORD`
 
-If present sets the password for `SYSDBA` user.
+Firebird installer generates a one-off password for `SYSDBA` and stores it in `/opt/firebird/SYSDBA.password`.
 
-If not present a random password will be generated and stored into `/opt/firebird/SYSDBA.password`.
+If `FIREBIRD_ROOT_PASSWORD` is set, `SYSDBA` password will be changed. And the file `/opt/firebird/SYSDBA.password` will be removed.
 
 
 

@@ -19,7 +19,7 @@ Docker images for Firebird Database.
 
 |`ghcr.io/fdcastel/firebird`|Dockerfile|
 |:-|:-:|
-|`bookworm`, `5`, `5.0.1`|[Dockerfile](./generated/5.0.1/bookworm/Dockerfile)|
+|`5`, `5.0.1`, `latest`|[Dockerfile](./generated/5.0.1/bookworm/Dockerfile)|
  |`bullseye`, `5-bullseye`, `5.0.1-bullseye`|[Dockerfile](./generated/5.0.1/bullseye/Dockerfile)|
  |`jammy`, `5-jammy`, `5.0.1-jammy`|[Dockerfile](./generated/5.0.1/jammy/Dockerfile)|
  |`noble`, `5-noble`, `5.0.1-noble`|[Dockerfile](./generated/5.0.1/noble/Dockerfile)|
@@ -127,11 +127,10 @@ The following environment variables can be used to customize the container.
 
 
 ### `FIREBIRD_ROOT_PASSWORD`
-  - _alternate name_: `ISC_PASSWORD`
 
-If present sets the password for `SYSDBA` user.
+Firebird installer generates a one-off password for `SYSDBA` and stores it in `/opt/firebird/SYSDBA.password`.
 
-If not present a random password will be generated and stored into `/opt/firebird/SYSDBA.password`.
+If `FIREBIRD_ROOT_PASSWORD` is set, `SYSDBA` password will be changed. And the file `/opt/firebird/SYSDBA.password` will be removed.
 
 
 

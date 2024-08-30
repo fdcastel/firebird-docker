@@ -104,17 +104,16 @@ set_config() {
     fi
 }
 
-# Changes SYSDBA password if ISC_PASSWORD variable is set.
+# Changes SYSDBA password if FIREBIRD_ROOT_PASSWORD variable is set.
 set_sysdba() {
     read_from_file_or_env 'FIREBIRD_ROOT_PASSWORD'
-    read_from_file_or_env 'ISC_PASSWORD' $FIREBIRD_ROOT_PASSWORD
-    if [ -n "$ISC_PASSWORD" ]; then
+    if [ -n "$FIREBIRD_ROOT_PASSWORD" ]; then
         echo 'Changing SYSDBA password.'
 
         # [Tabs ahead]
         /opt/firebird/bin/isql -b -user SYSDBA security.db <<-EOL
 			CREATE OR ALTER USER SYSDBA
-			    PASSWORD '$ISC_PASSWORD'
+			    PASSWORD '$FIREBIRD_ROOT_PASSWORD'
 			    USING PLUGIN Srp;
 			EXIT;
 		EOL
@@ -123,26 +122,14 @@ set_sysdba() {
             # [Tabs ahead]
             /opt/firebird/bin/isql -b -user SYSDBA security.db <<-EOL
 				CREATE OR ALTER USER SYSDBA
-				    PASSWORD '$ISC_PASSWORD'
+				    PASSWORD '$FIREBIRD_ROOT_PASSWORD'
 				    USING PLUGIN Legacy_UserManager;
 				EXIT;
 			EOL
         fi
 
-        # Updates SYSDBA.password file
-        # [Tabs ahead]
-        cat > "/opt/firebird/SYSDBA.password" <<-EOL
-			# Firebird password for user SYSDBA is:
-			#
-			ISC_USER=sysdba
-			ISC_PASSWORD=$ISC_PASSWORD
-			ISC_PASSWD=$ISC_PASSWORD
-			#
-			# generated at $(date)
-		EOL
+        rm -rf /opt/firebird/SYSDBA.password
     fi
-
-    source "/opt/firebird/SYSDBA.password"
 }
 
 # Requires FIREBIRD_PASSWORD if FIREBIRD_USER is set.
