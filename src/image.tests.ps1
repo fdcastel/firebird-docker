@@ -135,11 +135,11 @@ task FIREBIRD_DATABASE_can_create_database {
     Use-Container -Parameters '-e', 'FIREBIRD_DATABASE=test.fdb' {
         param($cId)
 
-        docker exec $cId test -f /run/firebird/data/test.fdb |
+        docker exec $cId test -f /var/lib/firebird/data/test.fdb |
             ExitCodeIs -ExpectedValue 0
 
         docker logs $cId |
-            Contains -Pattern "Creating database '/run/firebird/data/test.fdb'"
+            Contains -Pattern "Creating database '/var/lib/firebird/data/test.fdb'"
     }
 }
 
@@ -160,7 +160,7 @@ task FIREBIRD_DATABASE_PAGE_SIZE_can_set_page_size_on_database_creation {
         param($cId)
 
         'SET LIST ON; SELECT mon$page_size FROM mon$database;' |
-            docker exec -i $cId isql -b -q /run/firebird/data/test.fdb |
+            docker exec -i $cId isql -b -q /var/lib/firebird/data/test.fdb |
                 Contains -Pattern 'MON\$PAGE_SIZE(\s+)4096'
     }
 
@@ -168,7 +168,7 @@ task FIREBIRD_DATABASE_PAGE_SIZE_can_set_page_size_on_database_creation {
         param($cId)
 
         'SET LIST ON; SELECT mon$page_size FROM mon$database;' |
-            docker exec -i $cId isql -b -q /run/firebird/data/test.fdb |
+            docker exec -i $cId isql -b -q /var/lib/firebird/data/test.fdb |
                 Contains -Pattern 'MON\$PAGE_SIZE(\s+)16384'
     }
 }
@@ -178,7 +178,7 @@ task FIREBIRD_DATABASE_DEFAULT_CHARSET_can_set_default_charset_on_database_creat
         param($cId)
 
         'SET LIST ON; SELECT rdb$character_set_name FROM rdb$database;' |
-            docker exec -i $cId isql -b -q /run/firebird/data/test.fdb |
+            docker exec -i $cId isql -b -q /var/lib/firebird/data/test.fdb |
                 Contains -Pattern 'RDB\$CHARACTER_SET_NAME(\s+)NONE'
     }
 
@@ -186,7 +186,7 @@ task FIREBIRD_DATABASE_DEFAULT_CHARSET_can_set_default_charset_on_database_creat
         param($cId)
 
         'SET LIST ON; SELECT rdb$character_set_name FROM rdb$database;' |
-            docker exec -i $cId isql -b -q /run/firebird/data/test.fdb |
+            docker exec -i $cId isql -b -q /var/lib/firebird/data/test.fdb |
                 Contains -Pattern 'RDB\$CHARACTER_SET_NAME(\s+)UTF8'
     }
 }
@@ -208,12 +208,12 @@ task FIREBIRD_USER_can_create_user {
 
         # Correct password
         'SELECT 1 FROM rdb$database;' |
-            docker exec -i $cId isql -b -q -u alice -p bird inet:///run/firebird/data/test.fdb |
+            docker exec -i $cId isql -b -q -u alice -p bird inet:///var/lib/firebird/data/test.fdb |
                 ExitCodeIs -ExpectedValue 0
 
         # Incorrect password
         'SELECT 1 FROM rdb$database;' |
-            docker exec -i $cId isql -b -q -u alice -p tiger inet:///run/firebird/data/test.fdb 2>&1 |
+            docker exec -i $cId isql -b -q -u alice -p tiger inet:///var/lib/firebird/data/test.fdb 2>&1 |
                 ExitCodeIs -ExpectedValue 1
 
         # File /opt/firebird/SYSDBA.password exists?
@@ -231,12 +231,12 @@ task FIREBIRD_ROOT_PASSWORD_can_change_sysdba_password {
 
         # Correct password
         'SELECT 1 FROM rdb$database;' |
-            docker exec -i $cId isql -b -q -u SYSDBA -p passw0rd inet:///run/firebird/data/test.fdb |
+            docker exec -i $cId isql -b -q -u SYSDBA -p passw0rd inet:///var/lib/firebird/data/test.fdb |
                 ExitCodeIs -ExpectedValue 0
 
         # Incorrect password
         'SELECT 1 FROM rdb$database;' |
-            docker exec -i $cId isql -b -q -u SYSDBA -p tiger inet:///run/firebird/data/test.fdb 2>&1 |
+            docker exec -i $cId isql -b -q -u SYSDBA -p tiger inet:///var/lib/firebird/data/test.fdb 2>&1 |
                 ExitCodeIs -ExpectedValue 1
 
         # File /opt/firebird/SYSDBA.password removed?
@@ -315,7 +315,7 @@ task Can_init_db_with_scripts {
             $logs | Contains -Pattern "20-insert-data.sql"
 
             'SET LIST ON; SELECT count(*) AS country_count FROM country;' |
-            docker exec -i $cId isql -b -q /run/firebird/data/test.fdb |
+            docker exec -i $cId isql -b -q /var/lib/firebird/data/test.fdb |
                 Contains -Pattern 'COUNTRY_COUNT(\s+)5'
         }
     }
@@ -331,7 +331,7 @@ task TZ_can_change_system_timezone {
         $expected = [DateTime]::Now
 
         $actual = 'SET LIST ON; SELECT localtimestamp FROM mon$database;' |
-            docker exec -i $cId isql -b -q /run/firebird/data/test.fdb |
+            docker exec -i $cId isql -b -q /var/lib/firebird/data/test.fdb |
                 Contains -Pattern 'LOCALTIMESTAMP(\s+)(.*)' -ReturnMatchPosition 2
         $actual = [DateTime]$actual
 
@@ -348,7 +348,7 @@ task TZ_can_change_system_timezone {
         $expected = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId($expected, $tz.Id)
 
         $actual = 'SET LIST ON; SELECT localtimestamp FROM mon$database;' |
-            docker exec -i $cId isql -b -q /run/firebird/data/test.fdb |
+            docker exec -i $cId isql -b -q /var/lib/firebird/data/test.fdb |
                 Contains -Pattern 'LOCALTIMESTAMP(\s+)(.*)' -ReturnMatchPosition 2
         $actual = [DateTime]$actual
 

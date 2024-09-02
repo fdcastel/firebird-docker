@@ -76,7 +76,7 @@ Docker images for Firebird Database.
 
 Image defaults:
   - `EXPOSE 3050/tcp`
-  - `VOLUME /run/firebird/data`
+  - `VOLUME /var/lib/firebird/data`
 
 ## Start a Firebird server instance
 
@@ -87,7 +87,7 @@ docker run \
     -e FIREBIRD_PASSWORD=************ \
     -e FIREBIRD_DATABASE=mirror.fdb \
     -e FIREBIRD_DATABASE_DEFAULT_CHARSET=UTF8 \
-    -v ./data:/run/firebird/data
+    -v ./data:/var/lib/firebird/data
     --detach ghcr.io/fdcastel/firebird
 ```
 
@@ -107,7 +107,7 @@ services:
       - FIREBIRD_DATABASE=mirror.fdb
       - FIREBIRD_DATABASE_DEFAULT_CHARSET=UTF8
     volumes:
-      - ./data:/run/firebird/data
+      - ./data:/var/lib/firebird/data
 ```
 
 
@@ -146,7 +146,7 @@ You must inform a password in `FIREBIRD_PASSWORD` variable. Otherwise the contai
 
 Creates a new database. Ignored if the database already exists.
 
-Database location is `/run/firebird/data`. Absolute paths (outside this folder) are allowed.
+Database location is `/var/lib/firebird/data`. Absolute paths (outside this folder) are allowed.
 
 You may use `FIREBIRD_DATABASE_PAGE_SIZE` to set the database page size. And `FIREBIRD_DATABASE_DEFAULT_CHARSET` to set the default character set.
 
