@@ -24,7 +24,8 @@ function Use-Container([string[]]$Parameters, [Parameter(Mandatory)][ScriptBlock
     $cId = docker $allParameters
     try {
         Write-Verbose "  container id = $cId"
-        Start-Sleep -Seconds 0.5    # Wait for container initializaion
+        Start-Sleep -Seconds 0.5
+        Wait-Port -ContainerName $cId -Port 3050
 
         # Last check before execute
         docker top $cId > $null 2>&1
@@ -43,6 +44,20 @@ function Use-Container([string[]]$Parameters, [Parameter(Mandatory)][ScriptBlock
         docker stop --time 5 $cId > $null
         docker rm --force $cId > $null
     }
+}
+
+# Wait for a port to be open in a container.
+function Wait-Port([string]$ContainerName, [int]$Port) {
+    while (-not (Test-Port -ContainerName $cId -Port 3050)) {
+        Start-Sleep -Seconds 0.2
+    }
+}
+
+# Test if a port is open in a container.
+function Test-Port([string]$ContainerName, [int]$Port) {
+    $command = "cat < /dev/null > /dev/tcp/localhost/$Port"
+    docker exec $ContainerName bash -c $command -ErrorAction SilentlyContinue
+    return ($LASTEXITCODE -eq 0)
 }
 
 # Asserts that InputValue contains at least one occurence of Pattern.
