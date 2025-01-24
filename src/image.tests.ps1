@@ -219,7 +219,7 @@ task FIREBIRD_USER_can_create_user {
         # File /opt/firebird/SYSDBA.password exists?
         docker exec $cId test -f /opt/firebird/SYSDBA.password |
             ExitCodeIs -ExpectedValue 0
-    
+
         docker logs $cId |
             Contains -Pattern "Creating user 'alice'"
     }
@@ -242,7 +242,7 @@ task FIREBIRD_ROOT_PASSWORD_can_change_sysdba_password {
         # File /opt/firebird/SYSDBA.password removed?
         docker exec $cId test -f /opt/firebird/SYSDBA.password |
             ExitCodeIs -ExpectedValue 1
-    
+
         docker logs $cId |
             Contains -Pattern 'Changing SYSDBA password'
     }
@@ -301,7 +301,7 @@ task Can_init_db_with_scripts {
 
         @'
         INSERT INTO country (country, currency) VALUES ('USA',         'Dollar');
-        INSERT INTO country (country, currency) VALUES ('England',     'Pound'); 
+        INSERT INTO country (country, currency) VALUES ('England',     'Pound');
         INSERT INTO country (country, currency) VALUES ('Canada',      'CdnDlr');
         INSERT INTO country (country, currency) VALUES ('Switzerland', 'SFranc');
         INSERT INTO country (country, currency) VALUES ('Japan',       'Yen');
@@ -328,7 +328,7 @@ task TZ_can_change_system_timezone {
     Use-Container -Parameters '-e', 'FIREBIRD_DATABASE=test.fdb' {
         param($cId)
 
-        $expected = [DateTime]::Now
+        $expected = [DateTime]::Now.ToUniversalTime()
 
         $actual = 'SET LIST ON; SELECT localtimestamp FROM mon$database;' |
             docker exec -i $cId isql -b -q /var/lib/firebird/data/test.fdb |
