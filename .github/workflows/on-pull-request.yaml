@@ -1,0 +1,29 @@
+name: on-pull-request
+
+on: [pull_request]
+
+jobs:
+
+  build-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 10
+
+      - name: Install tools
+        shell: pwsh
+        run: |
+          Install-Module InvokeBuild -Force
+
+      - name: Build
+        shell: pwsh
+        run: |
+          Invoke-Build
+
+      - name: Test
+        shell: pwsh
+        run: |
+          Invoke-Build Test
