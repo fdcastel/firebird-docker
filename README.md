@@ -17,7 +17,7 @@ Docker images for Firebird Database.
 
 # Supported tags
 
-|`ghcr.io/fdcastel/firebird`|Dockerfile|
+|`firebirdsql/firebird`|Dockerfile|
 |:-|:-:|
 |`5`, `5.0.1`, `latest`|[Dockerfile](./generated/5.0.1/bookworm/Dockerfile)|
  |`bullseye`, `5-bullseye`, `5.0.1-bullseye`|[Dockerfile](./generated/5.0.1/bullseye/Dockerfile)|
@@ -88,7 +88,7 @@ docker run \
     -e FIREBIRD_DATABASE=mirror.fdb \
     -e FIREBIRD_DATABASE_DEFAULT_CHARSET=UTF8 \
     -v ./data:/var/lib/firebird/data
-    --detach ghcr.io/fdcastel/firebird
+    --detach firebirdsql/firebird
 ```
 
 
@@ -98,7 +98,7 @@ docker run \
 ```yaml
 services:
   firebird:
-    image: ghcr.io/fdcastel/firebird
+    image: firebirdsql/firebird
     restart: always
     environment:
       - FIREBIRD_ROOT_PASSWORD=************
@@ -115,7 +115,7 @@ services:
 ## Connect to an existing instance using `isql`
 
 ```bash
-docker run -it --rm ghcr.io/fdcastel/firebird isql -u SYSDBA -p ************ SERVER:/path/to/file.fdb
+docker run -it --rm firebirdsql/firebird isql -u SYSDBA -p ************ SERVER:/path/to/file.fdb
 ```
 
 
@@ -226,7 +226,7 @@ Invoke-Build
 You can then check all created images with:
 
 ```bash
-docker image ls ghcr.io/fdcastel/firebird
+docker image ls firebirdsql/firebird
 ```
 
 
