@@ -1,4 +1,4 @@
-﻿#
+#
 # This file was auto-generated. Do not edit. See /src.
 #
 
@@ -59,7 +59,7 @@ RUN set -eux; \
 ENV PATH=/opt/firebird/bin:$PATH
 
 # Data directory
-ENV FIREBIRD_DATA /run/firebird/data
+ENV FIREBIRD_DATA /var/lib/firebird/data
 RUN set -eux; \
     mkdir -p "$FIREBIRD_DATA"; \
     chown -R firebird:firebird "$FIREBIRD_DATA"; \
