@@ -37,7 +37,7 @@ docker run \
     -e FIREBIRD_PASSWORD=************ \
     -e FIREBIRD_DATABASE=mirror.fdb \
     -e FIREBIRD_DATABASE_DEFAULT_CHARSET=UTF8 \
-    -v ./data:/var/lib/firebird/data
+    -v ./data:/var/lib/firebird/data \
     --detach firebirdsql/firebird
 ```
 
