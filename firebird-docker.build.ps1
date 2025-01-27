@@ -108,15 +108,25 @@ task Update-Assets {
     $currentReleases = $releases | Where-Object { ($_.tag_name -like 'v*') -and (-not $_.prerelease) }
 
     # Select only amd64 and non-debug assets
-    $currentAssets = $currentReleases |
+    $amd64Assets = $currentReleases |
         Select-Object -Property @{ Name='version'; Expression={ [version]$_.tag_name.TrimStart("v") } },
-                                @{ Name='download_url'; Expression={ $_.assets.browser_download_url | Where-Object { ( $_ -like '*amd64*' -or $_ -like '*linux-x64*') -and ($_ -notlike '*debug*') } } } |
-        Sort-Object -Property version -Descending
+                                @{ Name='platform'; Expression={ 'amd64' } },
+                                @{ Name='download_url'; Expression={ $_.assets.browser_download_url | Where-Object { ( $_ -like '*.amd64*' -or $_ -like '*-linux-x64*') -and ($_ -notlike '*debug*') } } }
+
+    # Select only arm64 and non-debug assets
+    $arm64Assets = $currentReleases |
+        Select-Object -Property @{ Name='version'; Expression={ [version]$_.tag_name.TrimStart("v") } },
+                                @{ Name='platform'; Expression={ 'arm64' } },
+                                @{ Name='download_url'; Expression={ $_.assets.browser_download_url | Where-Object { ( $_ -like '*.arm64*' -or $_ -like '*-linux-arm64*') -and ($_ -notlike '*debug*') } } }
 
     # Group by major version
-    $groupedAssets = $currentAssets |
-        Select-Object -Property @{ Name='major'; Expression={ $_.version.Major } }, 'version', 'download_url' |
-        Group-Object -Property 'major'
+    $allAssets = $amd64Assets + $arm64Assets
+    $groupedAssets = $allAssets |
+        Sort-Object -Property @{Expression = "version"; Descending = $true},
+                              @{Expression = "platform"; Descending = $false} |
+        Select-Object -Property @{ Name='major'; Expression={ $_.version.Major } }, 'version', 'platform', 'download_url' |
+        Group-Object -Property 'major' |
+        Sort-Object -Property 'Name' -Descending
 
     # Get Variants
     $dockerFiles = Get-Item './src/Dockerfile.*.template'
@@ -124,7 +134,7 @@ task Update-Assets {
         Select-String -Pattern 'Dockerfile.(.+).template' |
         ForEach-Object { $_.Matches.Groups[1].Value } |
         Where-Object { $_ -ne $defaultVariant }
-    $allVariants = @($defaultVariant) + $otherVariants
+    $allVariants = @($defaultVariant) + $allOtherVariants
 
     # For each asset
     $groupedAssets | ForEach-Object -Begin { $groupIndex = 0 } -Process {
@@ -171,6 +181,7 @@ task Update-Assets {
 
             Write-Output ([ordered]@{
                 'version' = "$($asset.version)"
+                'platform' = "$($asset.platform)"
                 'url' = $asset.download_url
                 'sha256' = $sha256.Hash.ToLower()
                 'tags' = $tags
