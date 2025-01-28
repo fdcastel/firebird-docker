@@ -2,21 +2,23 @@ param(
     [switch]$NoCache
 )
 
-# Synopsis: Build docker image.
+# Synopsis: Build docker images.
 task Build {
+    $script:BUILDER_HAS_ARCH_ARM64 = <%$THasArchARM64%>
     $script:BUILDER_IMAGE_PREFIX = 'firebirdsql'
     $script:BUILDER_IMAGE_NAME = 'firebird'
     $script:BUILDER_IMAGE_VERSION = '<%$TImageVersion%>'
     $script:BUILDER_IMAGE_TAGS = @(<%$TImageTags%>)
 
-    $env:FULL_IMAGE_NAME = "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}:$BUILDER_IMAGE_VERSION"
-
     $noCacheParameter = if ($NoCache) { '--no-cache' } else { $null }
-    $tags = $BUILDER_IMAGE_TAGS | ForEach-Object { '--tag', "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}:$_" }
+
+    $tagsArchAMD64 = $BUILDER_IMAGE_TAGS | ForEach-Object { '--tag', "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}-amd64:$_" }
+    $tagsArchARM64 = $BUILDER_IMAGE_TAGS | ForEach-Object { '--tag', "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}-arm64:$_" }
 
     $allParameters = @(
         'build';
-        $tags;
+        '--platform', 'linux/amd64';
+        $tagsArchAMD64;
         $noCacheParameter,
         '--label', 'org.opencontainers.image.description=Firebird Database',
         '--label', 'org.opencontainers.image.source=https://github.com/FirebirdSQL/firebird-docker',
@@ -25,12 +27,36 @@ task Build {
     )
     Write-Verbose "docker $allParameters"
     exec { & docker $allParameters }
+
+    if ($BUILDER_HAS_ARCH_ARM64) {
+        $allParameters = @(
+            'build';
+            '--platform', 'linux/arm64';
+            '--build-arg', 'ARCH_ARM64=1';
+            $tagsArchARM64;
+            $noCacheParameter,
+            '--label', 'org.opencontainers.image.description=Firebird Database',
+            '--label', 'org.opencontainers.image.source=https://github.com/FirebirdSQL/firebird-docker',
+            '--label', 'org.opencontainers.image.version=<%$TImageVersion%>',
+            '.'
+        )
+        Write-Verbose "docker $allParameters"
+        exec { & docker $allParameters }
+	}
 }
 
 # Synopsis: Run tests.
 task Test Build, {
     Write-Build Magenta "----- [$BUILDER_IMAGE_VERSION] ---------------------"
+    $tag = $BUILDER_IMAGE_TAGS[0]
+
+    $env:FULL_IMAGE_NAME = "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}-amd64:${tag}"
     Invoke-Build * image.tests.ps1
+
+    if ($BUILDER_HAS_ARCH_ARM64) {
+        $env:FULL_IMAGE_NAME = "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}-arm64:${tag}"
+        Invoke-Build * image.tests.ps1
+    }
 }
 
 # Synopsis: Publish image.
@@ -38,6 +64,27 @@ task Publish Build, {
     Write-Build Magenta "----- [$BUILDER_IMAGE_VERSION] ---------------------"
 
     $BUILDER_IMAGE_TAGS | ForEach-Object {
-        docker push "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}:$_"
+        docker push "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}-amd64:$_"
+
+        if ($BUILDER_HAS_ARCH_ARM64) {
+            docker push "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}-arm64:$_"
+
+            docker manifest create --amend "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}:$_" `
+                "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}-amd64:$_" `
+                "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}-arm64:$_"
+
+            docker manifest annotate "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}:$_" `
+                "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}-amd64:$_" --os linux --arch amd64
+            docker manifest annotate "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}:$_" `
+                "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}-arm64:$_" --os linux --arch arm64
+
+            docker manifest push "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}:$_"
+        }
+        else {
+            docker image tag "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}-amd64:$_" `
+                "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}:$_"
+
+            docker push "$BUILDER_IMAGE_PREFIX/${BUILDER_IMAGE_NAME}:$_"
+        }
     }
 }
