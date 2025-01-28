@@ -2,13 +2,18 @@
 # This file was auto-generated. Do not edit. See /src.
 #
 
-# Best practices for Dockerfile instructions
-#   https://docs.docker.com/develop/develop-images/instructions/
-
 FROM ubuntu:noble
 
-ENV FIREBIRD_RELEASE_URL=https://github.com/FirebirdSQL/firebird/releases/download/v5.0.1/Firebird-5.0.1.1469-0-linux-x64.tar.gz
-ENV FIREBIRD_RELEASE_SHA256=e1023b005e5d6db8f717af032e91f0f94aa7a8dbe0e78f250931214ca0a21e57
+ARG ARCH_ARM64
+
+# ARM64 arch
+ENV FIREBIRD_RELEASE_URL=${ARCH_ARM64:+https://github.com/FirebirdSQL/firebird/releases/download/v5.0.1/Firebird-5.0.1.1469-0-linux-arm64.tar.gz}
+ENV FIREBIRD_RELEASE_SHA256=${ARCH_ARM64:+46b3f4f170458a93365c67118c062ba8509903fe8293bf8a62e7bd8a388e2d06}
+
+# AMD64 arch
+ENV FIREBIRD_RELEASE_URL=${FIREBIRD_RELEASE_URL:-https://github.com/FirebirdSQL/firebird/releases/download/v5.0.1/Firebird-5.0.1.1469-0-linux-x64.tar.gz}
+ENV FIREBIRD_RELEASE_SHA256=${FIREBIRD_RELEASE_SHA256:-e1023b005e5d6db8f717af032e91f0f94aa7a8dbe0e78f250931214ca0a21e57}
+
 ENV FIREBIRD_VERSION=5.0.1
 ENV FIREBIRD_MAJOR=5
 
@@ -59,7 +64,7 @@ RUN set -eux; \
 ENV PATH=/opt/firebird/bin:$PATH
 
 # Data directory
-ENV FIREBIRD_DATA /var/lib/firebird/data
+ENV FIREBIRD_DATA=/var/lib/firebird/data
 RUN set -eux; \
     mkdir -p "$FIREBIRD_DATA"; \
     chown -R firebird:firebird "$FIREBIRD_DATA"; \
