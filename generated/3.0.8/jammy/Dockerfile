@@ -68,7 +68,7 @@ RUN set -eux; \
 ENV PATH=/opt/firebird/bin:$PATH
 
 # Data directory
-ENV FIREBIRD_DATA /var/lib/firebird/data
+ENV FIREBIRD_DATA=/var/lib/firebird/data
 RUN set -eux; \
     mkdir -p "$FIREBIRD_DATA"; \
     chown -R firebird:firebird "$FIREBIRD_DATA"; \
