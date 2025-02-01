@@ -7,8 +7,16 @@
 
 FROM ubuntu:jammy
 
-ENV FIREBIRD_RELEASE_URL=https://github.com/FirebirdSQL/firebird/releases/download/v5.0.0/Firebird-5.0.0.1306-0-linux-x64.tar.gz
-ENV FIREBIRD_RELEASE_SHA256=137b356ea464e224b6ed1241e6dba95b6b950ff1feef91696d4071d4da880768
+ARG ARCH_ARM64
+
+# ARM64 arch
+ENV FIREBIRD_RELEASE_URL=${ARCH_ARM64:+https://github.com/FirebirdSQL/firebird/releases/download/v5.0.0/Firebird-5.0.0.1306-0-linux-arm64.tar.gz}
+ENV FIREBIRD_RELEASE_SHA256=${ARCH_ARM64:+bdb62abc91a4c26a86b9377256529622e3046f4ec4f66fbdcf46747688d45033}
+
+# AMD64 arch
+ENV FIREBIRD_RELEASE_URL=${FIREBIRD_RELEASE_URL:-https://github.com/FirebirdSQL/firebird/releases/download/v5.0.0/Firebird-5.0.0.1306-0-linux-x64.tar.gz}
+ENV FIREBIRD_RELEASE_SHA256=${FIREBIRD_RELEASE_SHA256:-137b356ea464e224b6ed1241e6dba95b6b950ff1feef91696d4071d4da880768}
+
 ENV FIREBIRD_VERSION=5.0.0
 ENV FIREBIRD_MAJOR=5
 

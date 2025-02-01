@@ -56,7 +56,7 @@ function Wait-Port([string]$ContainerName, [int]$Port) {
 # Test if a port is open in a container.
 function Test-Port([string]$ContainerName, [int]$Port) {
     $command = "cat < /dev/null > /dev/tcp/localhost/$Port"
-    docker exec $ContainerName bash -c $command -ErrorAction SilentlyContinue
+    docker exec $ContainerName bash -c $command -ErrorAction SilentlyContinue *>&1 | Out-Null
     return ($LASTEXITCODE -eq 0)
 }
 

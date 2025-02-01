@@ -25,7 +25,7 @@ function Expand-Template([Parameter(ValueFromPipeline = $true)]$Template) {
 
 function Copy-TemplateItem([string]$Path, [string]$Destination, [switch]$Force) {
     if (Test-Path $Destination) {
-        # File already exists. 
+        # File already exists.
 
         if ($Force) {
             # With -Force: Overwrite.
@@ -107,10 +107,10 @@ task Update-Assets {
     # Ignore legacy and prerelease
     $currentReleases = $releases | Where-Object { ($_.tag_name -like 'v*') -and (-not $_.prerelease) }
 
-    # Select only amd64 and non-debug assets
+    # Select only amd64/arm64 and non-debug assets
     $currentAssets = $currentReleases |
         Select-Object -Property @{ Name='version'; Expression={ [version]$_.tag_name.TrimStart("v") } },
-                                @{ Name='download_url'; Expression={ $_.assets.browser_download_url | Where-Object { ( $_ -like '*amd64*' -or $_ -like '*linux-x64*') -and ($_ -notlike '*debug*') } } } |
+                                @{ Name='download_url'; Expression={ $_.assets.browser_download_url | Where-Object { ( $_ -like '*amd64*' -or $_ -like '*linux-x64*' -or $_ -like '*linux-arm64*') -and ($_ -notlike '*debug*') } } } |
         Sort-Object -Property version -Descending
 
     # Group by major version
@@ -137,14 +137,35 @@ task Update-Assets {
             $otherVariants = $allOtherVariants | Where-Object { $_ -notin $blockedVariants."$($asset.major)" }
             $variants = $allVariants | Where-Object { $_ -notin $blockedVariants."$($asset.major)" }
 
-            $assetFileName = ([uri]$asset.download_url).Segments[-1]
-            $assetLocalFile = Join-Path $assetsFolder $assetFileName
-            if (-not (Test-Path $assetLocalFile)) {
-                $ProgressPreference = 'SilentlyContinue'    # How NOT to implement a progress bar -- https://stackoverflow.com/a/43477248
-                Invoke-WebRequest $asset.download_url -OutFile $assetLocalFile
-            }
+            $releases = $asset.download_url | ForEach-Object {
+                $url = [uri]$_
+                $assetFileName = $url.Segments[-1]
+                $assetLocalFile = Join-Path $assetsFolder $assetFileName
+                if (-not (Test-Path $assetLocalFile)) {
+                    $ProgressPreference = 'SilentlyContinue'    # How NOT to implement a progress bar -- https://stackoverflow.com/a/43477248
+                    Invoke-WebRequest $url -OutFile $assetLocalFile
+                }
 
-            $sha256 = Get-FileHash $assetLocalFile -Algorithm SHA256
+                $sha256 = (Get-FileHash $assetLocalFile -Algorithm SHA256).Hash.ToLower()
+
+                if ($url -like '*arm64*') {
+                    [ordered]@{
+                        arm64 =
+                            [ordered]@{
+                                url = $url
+                                sha256 = $sha256
+                            }
+                    }
+                } else {
+                    [ordered]@{
+                        amd64 =
+                            [ordered]@{
+                                url = $url
+                                sha256 = $sha256
+                            }
+                    }
+                }
+            }
 
             $tags = [ordered]@{}
 
@@ -171,8 +192,7 @@ task Update-Assets {
 
             Write-Output ([ordered]@{
                 'version' = "$($asset.version)"
-                'url' = $asset.download_url
-                'sha256' = $sha256.Hash.ToLower()
+                'releases' = $releases
                 'tags' = $tags
             })
 
@@ -185,7 +205,7 @@ task Update-Assets {
 # Synopsis: Rebuild "README.md" from "assets.json".
 task Update-Readme {
     # For each asset
-    $assets = Get-Content -Raw -Path '.\assets.json' | ConvertFrom-Json 
+    $assets = Get-Content -Raw -Path '.\assets.json' | ConvertFrom-Json
     $TSupportedTags = $assets | ForEach-Object {
         $asset = $_
 
@@ -218,7 +238,7 @@ task Prepare {
     New-Item -ItemType Directory $outputFolder -Force > $null
 
     # For each asset
-    $assets = Get-Content -Raw -Path '.\assets.json' | ConvertFrom-Json 
+    $assets = Get-Content -Raw -Path '.\assets.json' | ConvertFrom-Json
     $assets | ForEach-Object {
         $asset = $_
 
@@ -230,8 +250,15 @@ task Prepare {
         $asset.tags | Get-Member -MemberType NoteProperty | ForEach-Object {
             $image = $_.Name
 
-            $TUrl = $asset.url
-            $TSha256 = $asset.sha256
+            $THasArchARM64 = ($asset.releases.arm64.url -ne $null -and $image -ne 'bullseye' -and $image -ne 'jammy' ?
+                '$true' : '$false')
+
+            $TUrlArchAMD64 = $asset.releases.amd64.url
+            $TSha256ArchAMD64 = $asset.releases.amd64.sha256
+
+            $TUrlArchARM64 = $asset.releases.arm64.url
+            $TSha256ArchARM64 = $asset.releases.arm64.sha256
+
             $TMajor = $version.Major
             $TImageVersion = $version
 

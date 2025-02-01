@@ -18,6 +18,9 @@ jobs:
         run: |
           Install-Module InvokeBuild -Force
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Build
         shell: pwsh
         run: |

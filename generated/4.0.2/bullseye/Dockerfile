@@ -7,8 +7,16 @@
 
 FROM debian:bullseye-slim
 
-ENV FIREBIRD_RELEASE_URL=https://github.com/FirebirdSQL/firebird/releases/download/v4.0.2/Firebird-4.0.2.2816-0.amd64.tar.gz
-ENV FIREBIRD_RELEASE_SHA256=70108f9854a522ac6eb7b2bdc1bda9780aab97dbfbf358ced90c0db13b8af9fa
+ARG ARCH_ARM64
+
+# ARM64 arch
+ENV FIREBIRD_RELEASE_URL=${ARCH_ARM64:+}
+ENV FIREBIRD_RELEASE_SHA256=${ARCH_ARM64:+}
+
+# AMD64 arch
+ENV FIREBIRD_RELEASE_URL=${FIREBIRD_RELEASE_URL:-https://github.com/FirebirdSQL/firebird/releases/download/v4.0.2/Firebird-4.0.2.2816-0.amd64.tar.gz}
+ENV FIREBIRD_RELEASE_SHA256=${FIREBIRD_RELEASE_SHA256:-70108f9854a522ac6eb7b2bdc1bda9780aab97dbfbf358ced90c0db13b8af9fa}
+
 ENV FIREBIRD_VERSION=4.0.2
 ENV FIREBIRD_MAJOR=4
 
