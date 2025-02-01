@@ -111,14 +111,7 @@ task Update-Assets {
     $currentAssets = $currentReleases |
         Select-Object -Property @{ Name='version'; Expression={ [version]$_.tag_name.TrimStart("v") } },
                                 @{ Name='download_url'; Expression={ $_.assets.browser_download_url | Where-Object { ( $_ -like '*amd64*' -or $_ -like '*linux-x64*' -or $_ -like '*linux-arm64*') -and ($_ -notlike '*debug*') } } } |
-        Sort-Object -Property version -Descending |
-        ForEach-Object {
-            # Ensure download_url is always an array
-            @{
-                version      = $_.version
-                download_url = @($_.download_url)
-            }
-        }
+        Sort-Object -Property version -Descending
 
     # Group by major version
     $groupedAssets = $currentAssets |
