@@ -1,1 +1,8 @@
-/generated
+# Ignore all files from /generated except Dockerfile and entrypoint.sh -- https://stackoverflow.com/a/72380673
+/generated/*
+!/generated/*
+/generated/*/*
+!/generated/*/*
+/generated/*/*/*
+!/generated/*/*/Dockerfile
+!/generated/*/*/entrypoint.sh
