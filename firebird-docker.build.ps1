@@ -30,7 +30,7 @@ function Copy-TemplateItem([string]$Path, [string]$Destination, [switch]$Force) 
         if ($Force) {
             # With -Force: Overwrite.
             $outputFile = Get-Item $Destination
-            $outputFile.Attributes -= 'ReadOnly'
+            $outputFile | Set-ItemProperty -Name IsReadOnly -Value $false
         } else {
             # Without -Force: Nothing to do.
             return
@@ -68,7 +68,7 @@ function Copy-TemplateItem([string]$Path, [string]$Destination, [switch]$Force) 
 
     # Set readonly flag (another reminder to not edit the file)
     $outputFile = Get-Item $Destination
-    $outputFile.Attributes += 'ReadOnly'
+    $outputFile | Set-ItemProperty -Name IsReadOnly -Value $true
 }
 
 function Use-CachedResponse {
