@@ -182,6 +182,28 @@ Note that both the original variable and its `_FILE` variant are mutually exclus
 
 
 
+## Using database aliases
+
+To use database aliases, create your own `databases.conf` file and configure a [Docker bind mount](https://docs.docker.com/engine/storage/bind-mounts/) for it at `/opt/firebird/databases.conf`.
+
+More information: 
+- [Firebird Quick Start Guide](https://www.firebirdsql.org/file/documentation/html/en/firebirddocs/qsg3/firebird-3-quickstartguide.html#qsg3-config-security) (section "Use database aliases")
+
+
+
+## Using Firebird Events
+
+To use this image with [Firebird Events](https://firebirdsql.org/file/documentation/html/en/refdocs/fblangref50/firebird-50-language-reference.html#fblangref50-psql-postevent) you need to:
+- use `FIREBIRD_CONF_RemoteAuxPort` environment variable to set the value of `RemoteAuxPort` configuration to a specific port (e.g. 3051); and
+- [Publish](https://docs.docker.com/get-started/docker-concepts/running-containers/publishing-ports/) this port to the host.
+
+More information:
+
+- [This answer](https://stackoverflow.com/a/49918178/33244) from Mark Rotteveel at Stack Overflow.
+- [The Power of Firebird Events](https://www.firebirdsql.org/file/documentation/papers_presentations/Power_Firebird_events.pdf) from Milan Babuškov.
+
+
+
 ## Initializing the database contents
 
 When creating a new database with `FIREBIRD_DATABASE` environment variable you can initialize it running one or more shell or SQL scripts.
