@@ -116,7 +116,8 @@ task Update-Assets {
     # Group by major version
     $groupedAssets = $currentAssets |
         Select-Object -Property @{ Name='major'; Expression={ $_.version.Major } }, 'version', 'download_url' |
-        Group-Object -Property 'major'
+        Group-Object -Property 'major' |
+        Sort-Object -Property Name -Descending
 
     # Get Variants
     $dockerFiles = Get-Item './src/Dockerfile.*.template'
