@@ -1,4 +1,4 @@
-﻿
+
 [//]: # (This file was auto-generated. Do not edit. See /src.)
 
 # firebird-docker
@@ -19,10 +19,14 @@ Docker images for Firebird Database.
 
 |`firebirdsql/firebird`|Dockerfile|
 |:-|:-:|
-|`5`, `5.0.1`, `latest`|[Dockerfile](./generated/5.0.1/bookworm/Dockerfile)|
- |`bullseye`, `5-bullseye`, `5.0.1-bullseye`|[Dockerfile](./generated/5.0.1/bullseye/Dockerfile)|
- |`jammy`, `5-jammy`, `5.0.1-jammy`|[Dockerfile](./generated/5.0.1/jammy/Dockerfile)|
- |`noble`, `5-noble`, `5.0.1-noble`|[Dockerfile](./generated/5.0.1/noble/Dockerfile)|
+|`5`, `5.0.2`, `latest`|[Dockerfile](./generated/5.0.2/bookworm/Dockerfile)|
+ |`bullseye`, `5-bullseye`, `5.0.2-bullseye`|[Dockerfile](./generated/5.0.2/bullseye/Dockerfile)|
+ |`jammy`, `5-jammy`, `5.0.2-jammy`|[Dockerfile](./generated/5.0.2/jammy/Dockerfile)|
+ |`noble`, `5-noble`, `5.0.2-noble`|[Dockerfile](./generated/5.0.2/noble/Dockerfile)|
+ |`5.0.1`|[Dockerfile](./generated/5.0.1/bookworm/Dockerfile)|
+ |`5.0.1-bullseye`|[Dockerfile](./generated/5.0.1/bullseye/Dockerfile)|
+ |`5.0.1-jammy`|[Dockerfile](./generated/5.0.1/jammy/Dockerfile)|
+ |`5.0.1-noble`|[Dockerfile](./generated/5.0.1/noble/Dockerfile)|
  |`5.0.0`|[Dockerfile](./generated/5.0.0/bookworm/Dockerfile)|
  |`5.0.0-bullseye`|[Dockerfile](./generated/5.0.0/bullseye/Dockerfile)|
  |`5.0.0-jammy`|[Dockerfile](./generated/5.0.0/jammy/Dockerfile)|
